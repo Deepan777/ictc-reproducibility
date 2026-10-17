@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from dataclasses import fields
+from dataclasses import asdict, fields
 from pathlib import Path
 
 import pytest
@@ -289,3 +289,36 @@ def test_schedule_mismatch_is_rejected() -> None:
     other = config.model_copy(update={"seed": config.seed + 1})
     with pytest.raises(ValueError, match="does not belong"):
         run_action(config, generate_schedule(other), ActionKind.KEEP_CURRENT_PATH)
+
+
+def test_delayed_foreground_has_a_shared_action_independent_visible_prefix() -> None:
+    config = _constant_config(
+        scenario_id="prelude", duration=12, foreground=3, current_service=2, candidate_service=4
+    )
+    pair = run_paired(config, foreground_start_tick=6)
+
+    def prefix(run):
+        rows = [asdict(row) for row in run.controller_trace.available_at(5)]
+        for row in rows:
+            row.pop("run_id")
+            row.pop("provenance_digest")
+        return rows
+
+    assert prefix(pair.baseline) == prefix(pair.intervention)
+    for run in (pair.baseline, pair.intervention):
+        assert all(
+            row.true_foreground_arrivals == 0 for row in run.oracle_trace.records if row.tick < 6
+        )
+
+
+def test_foreground_start_outside_episode_is_rejected() -> None:
+    config = _constant_config(
+        scenario_id="prelude-invalid",
+        duration=12,
+        foreground=1,
+        current_service=2,
+        candidate_service=4,
+    )
+    for start in (-1, 12):
+        with pytest.raises(ValueError):
+            run_paired(config, foreground_start_tick=start)

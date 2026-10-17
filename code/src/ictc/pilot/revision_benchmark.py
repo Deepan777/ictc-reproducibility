@@ -115,6 +115,7 @@ class RevisionBenchmarkRecord:
             key,
             self.row.decision.assigned_action,
             self.selected_outcome.mean_latency_ms,
+            cluster_id=str(self.row.decision.seed),
         )
 
 

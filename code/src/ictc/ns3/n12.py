@@ -296,7 +296,9 @@ def build_decision(
 def utility(row: dict[str, str]) -> float:
     delivery = float(row["delivery_ratio"])
     throughput = min(1.0, float(row["throughput_mbps"]) / 5.0)
-    delay = max(0.0, 1.0 - float(row["p95_delay_ms"]) / 200.0)
+    # An empty reception set has no observed delay, not perfect latency.
+    delay = (max(0.0, 1.0 - float(row["p95_delay_ms"]) / 200.0)
+             if int(row.get("rx_packets", "1")) > 0 else 0.0)
     completion = float(row["completion_ratio"])
     drop_penalty = min(1.0, float(row["queue_drops"]) / 100.0)
     return (

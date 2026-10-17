@@ -21,6 +21,8 @@ class EstimationReason(StrEnum):
     COVARIATE_SCHEMA_MISMATCH = "COVARIATE_SCHEMA_MISMATCH"
     INSUFFICIENT_ACTION_SUPPORT = "INSUFFICIENT_ACTION_SUPPORT"
     INSUFFICIENT_STRATUM_SAMPLE = "INSUFFICIENT_STRATUM_SAMPLE"
+    CONTEXT_MISMATCH = "CONTEXT_MISMATCH"
+    INSUFFICIENT_INDEPENDENT_CLUSTERS = "INSUFFICIENT_INDEPENDENT_CLUSTERS"
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,6 +32,7 @@ class AdjustmentObservation:
     treatment: ActionKind
     outcome: float
     covariates: tuple[tuple[str, float], ...] = ()
+    cluster_id: str | None = None
 
     def __post_init__(self) -> None:
         if self.treatment not in {
@@ -52,11 +55,13 @@ class AdjustmentObservation:
         treatment: ActionKind,
         outcome: float,
         covariates: dict[str, float] | None = None,
+        cluster_id: str | None = None,
     ) -> AdjustmentObservation:
         return cls(
             treatment=treatment,
             outcome=outcome,
             covariates=tuple(sorted((covariates or {}).items())),
+            cluster_id=cluster_id,
         )
 
 
@@ -114,15 +119,28 @@ def estimate_stratified_backdoor(
     estimand: str,
     unit: str,
     confidence_level: float = 0.95,
+    context_values: tuple[tuple[str, float], ...] = (),
 ) -> EstimationResult:
     """Estimate intervention-minus-baseline effect by exact empirical stratification.
 
-    The interval conditions on the observed empirical stratum weights. It is an initial,
-    inspectable estimator and is not the final-study inference procedure.
+    The approximate interval holds empirical stratum weights fixed. With cluster IDs,
+    it uses cluster-summed influence scores (CR1); without them it assumes independent
+    completed episodes. It is not the held-out algorithm-comparison procedure.
     """
     if not 0 < confidence_level < 1:
         raise ValueError("confidence level must lie strictly between zero and one")
     canonical_adjustment = tuple(sorted(adjustment_set))
+    context = dict(context_values)
+    if (
+        len(context) != len(context_values)
+        or tuple(sorted(context)) != identification.conditioning_variables
+    ):
+        return _failure(
+            EstimationReason.CONTEXT_MISMATCH,
+            canonical_adjustment,
+            observations,
+            "Context values must match the variables used for conditional identification.",
+        )
     if len(canonical_adjustment) != len(set(canonical_adjustment)):
         raise ValueError("adjustment variables must be unique")
     if not identification.identified:
@@ -147,7 +165,9 @@ def estimate_stratified_backdoor(
             observations,
             "no finite-sample observations are available",
         )
-    expected_names = canonical_adjustment
+    expected_names = tuple(sorted((*canonical_adjustment, *context)))
+    if set(canonical_adjustment) & context.keys():
+        raise ValueError("additional adjustment variables must exclude mandatory context")
     for row in observations:
         if tuple(name for name, _value in row.covariates) != expected_names:
             return _failure(
@@ -157,6 +177,18 @@ def estimate_stratified_backdoor(
                 "every row must contain exactly the selected pre-action adjustment variables",
             )
 
+    observations = tuple(
+        row
+        for row in observations
+        if all(dict(row.covariates)[name] == value for name, value in context.items())
+    )
+    if not observations:
+        return _failure(
+            EstimationReason.NO_OBSERVATIONS,
+            canonical_adjustment,
+            observations,
+            "No completed observations match the requested context.",
+        )
     grouped: defaultdict[tuple[float, ...], dict[ActionKind, list[float]]] = defaultdict(
         lambda: {
             ActionKind.KEEP_CURRENT_PATH: [],
@@ -164,7 +196,7 @@ def estimate_stratified_backdoor(
         }
     )
     for row in observations:
-        key = tuple(value for _name, value in row.covariates)
+        key = tuple(dict(row.covariates)[name] for name in canonical_adjustment)
         grouped[key][row.treatment].append(row.outcome)
 
     diagnostics: list[StratumDiagnostic] = []
@@ -207,6 +239,31 @@ def estimate_stratified_backdoor(
             variance(intervention) / len(intervention) + variance(baseline) / len(baseline)
         )
     standard_error = math.sqrt(sampling_variance)
+    clustered = any(row.cluster_id is not None for row in observations)
+    if clustered:
+        if any(row.cluster_id is None for row in observations):
+            raise ValueError("cluster IDs must be supplied for every observation or none")
+        scores: defaultdict[str, float] = defaultdict(float)
+        by_values = {item.values: item for item in diagnostics}
+        for row in observations:
+            values = tuple(dict(row.covariates)[name] for name in canonical_adjustment)
+            diagnostic = by_values[values]
+            arm = grouped[values][row.treatment]
+            sign = 1 if row.treatment is ActionKind.REROUTE_TO_PATH else -1
+            assert row.cluster_id is not None
+            scores[row.cluster_id] += (
+                sign * diagnostic.weight * (row.outcome - fmean(arm)) / len(arm)
+            )
+        if len(scores) < 2:
+            return _failure(
+                EstimationReason.INSUFFICIENT_INDEPENDENT_CLUSTERS,
+                canonical_adjustment,
+                observations,
+                "At least two independent clusters are needed for variance.",
+                frozen_diagnostics,
+            )
+        sampling_variance = len(scores) / (len(scores) - 1) * sum(v * v for v in scores.values())
+        standard_error = math.sqrt(sampling_variance)
     critical = NormalDist().inv_cdf((1 + confidence_level) / 2)
     margin = critical * standard_error
     estimate = CausalEffectEstimate(
@@ -218,7 +275,11 @@ def estimate_stratified_backdoor(
             upper=point + margin,
             confidence_level=confidence_level,
         ),
-        estimator_name="empirical-stratified-backdoor-standardization-v1",
+        estimator_name=(
+            "empirical-stratified-backdoor-seed-cluster-v2"
+            if clustered
+            else "empirical-stratified-backdoor-standardization-v1"
+        ),
     )
     return EstimationResult(
         estimable=True,
@@ -228,5 +289,9 @@ def estimate_stratified_backdoor(
         strata=frozen_diagnostics,
         estimate=estimate,
         standard_error=standard_error,
-        detail="conditional normal interval with empirical stratum weights held fixed",
+        detail=(
+            "approximate cluster-robust normal interval; empirical stratum weights fixed"
+            if clustered
+            else "approximate independent-episode normal interval; empirical stratum weights fixed"
+        ),
     )

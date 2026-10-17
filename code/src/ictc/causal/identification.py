@@ -36,6 +36,7 @@ class IdentifiabilityResult:
     open_backdoor_paths: tuple[tuple[str, ...], ...] = ()
     missing_variable_sets: tuple[tuple[str, ...], ...] = ()
     detail: str = ""
+    conditioning_variables: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if self.identified and not self.valid_adjustment_sets:
@@ -281,4 +282,79 @@ class BackdoorIdentifier:
             query.treatment_variable_id,
             query.outcome_variable_id,
             available_variables,
+        )
+
+    def identify_conditional(
+        self,
+        treatment: str,
+        outcome: str,
+        conditioning_variables: Iterable[str],
+        available_variables: Iterable[str] | None = None,
+    ) -> IdentifiabilityResult:
+        """Identify a conditional total effect with mandatory pre-treatment context.
+
+        The context is part of every blocking set, not an optional adjustment.
+        This is a sufficient back-door test, not general conditional do-calculus.
+        Positivity is assessed separately in the context-filtered observations.
+        """
+        self._validate_endpoints(treatment, outcome)
+        context = self.graph._validate_nodes(conditioning_variables)
+        available = self.graph._validate_nodes(
+            self.graph.observed_nodes if available_variables is None else available_variables
+        )
+        forbidden = {treatment, outcome} | set(self.graph.descendants(treatment))
+        if context & forbidden:
+            raise ValueError(
+                "conditioning context must exclude endpoints and treatment descendants"
+            )
+        if not available <= self.graph.observed_nodes:
+            raise ValueError("available variables must be declared observable")
+        required = context | {treatment, outcome}
+        if not required <= available:
+            return IdentifiabilityResult(
+                identified=False,
+                reason=IdentifiabilityReason.MISSING_ADJUSTMENT_VARIABLES,
+                missing_variable_sets=(tuple(sorted(required - available)),),
+                detail="Mandatory conditioning context and both endpoints must be observable.",
+                treatment=treatment,
+                outcome=outcome,
+                available_variables=tuple(sorted(available)),
+                conditioning_variables=tuple(sorted(context)),
+            )
+        candidates = tuple(
+            node
+            for node in self.eligible_adjustment_variables(treatment, outcome, available)
+            if node not in context
+        )
+        if len(candidates) > self.max_adjustment_variables:
+            return IdentifiabilityResult(
+                identified=False,
+                reason=IdentifiabilityReason.ENUMERATION_LIMIT_EXCEEDED,
+                detail="Conditional exact adjustment search exceeded its configured bound.",
+                treatment=treatment,
+                outcome=outcome,
+                available_variables=tuple(sorted(available)),
+                conditioning_variables=tuple(sorted(context)),
+            )
+        valid = tuple(
+            extra
+            for extra in _ordered_subsets(candidates)
+            if self.is_valid_adjustment_set(treatment, outcome, (*context, *extra))
+        )
+        return IdentifiabilityResult(
+            identified=bool(valid),
+            reason=(
+                IdentifiabilityReason.IDENTIFIED_WITHOUT_ADJUSTMENT
+                if () in valid
+                else IdentifiabilityReason.IDENTIFIED_BY_BACKDOOR
+                if valid
+                else IdentifiabilityReason.MISSING_ADJUSTMENT_VARIABLES
+            ),
+            valid_adjustment_sets=valid,
+            minimal_adjustment_sets=self.minimal_adjustment_sets(valid),
+            detail="Back-door blocking checked conditional on mandatory context and adjustment.",
+            treatment=treatment,
+            outcome=outcome,
+            available_variables=tuple(sorted(available)),
+            conditioning_variables=tuple(sorted(context)),
         )

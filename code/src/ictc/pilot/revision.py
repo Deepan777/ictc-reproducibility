@@ -132,6 +132,7 @@ class ContextObservation:
     key: ContextKey
     treatment: ActionKind
     observed_latency_ms: float
+    cluster_id: str | None = None
 
     def __post_init__(self) -> None:
         if self.split is not DatasetSplit.TRAIN:
@@ -290,6 +291,7 @@ def _estimate_rows(rows: tuple[ContextObservation, ...], *, estimand: str) -> Es
             treatment=row.treatment,
             outcome=row.observed_latency_ms,
             covariates={"QueuePressureBin": float(row.key.queue_pressure_bin)},
+            cluster_id=row.cluster_id,
         )
         for row in rows
     )

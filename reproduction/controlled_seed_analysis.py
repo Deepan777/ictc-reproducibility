@@ -1,4 +1,4 @@
-"""Dependence correction only: retained decisions/outcomes, no controller execution."""
+"""Seed-block analysis of corrected controlled decisions; no controller execution."""
 from pathlib import Path
 import hashlib
 import json
@@ -29,12 +29,9 @@ def holm(values):
 
 def main():
     OUT.mkdir(exist_ok=False)
-    prior_path=EVIDENCE/'original-analysis/controlled-evidence/m16_results.json'
     input_names=('ablation_decisions.jsonl','ablation_scores.jsonl','baseline_b0_oracle_decisions.jsonl',
                  'baseline_b1_b8_decisions.jsonl','baseline_scores.jsonl','scoring_audit.json')
-    prior=json.loads(prior_path.read_text()) if prior_path.is_file() else {'input_sha256':{name:sha(INPUT/name) for name in input_names}}
-    for f,h in prior['input_sha256'].items():
-        assert sha(INPUT/f)==h.upper(),f
+    input_hashes={name:sha(INPUT/name) for name in input_names}
     groups={}
     for name,idkey in [('ablation_decisions.jsonl','ablation_id'),('ablation_scores.jsonl','ablation_id'),('baseline_b0_oracle_decisions.jsonl','baseline_id'),('baseline_b1_b8_decisions.jsonl','baseline_id'),('baseline_scores.jsonl','baseline_id')]:
         for r in read(name):
@@ -79,13 +76,13 @@ def main():
     for metric in metrics:
         adjusted=holm({m:comparisons[m][metric]['exact_seed_sign_p'] for m in baselines if metric in comparisons[m]})
         for m,p in adjusted.items():comparisons[m][metric]['holm_p']=p
-    result={'amendment':'Post-review dependence correction; not a prospectively specified reanalysis. Point estimates and all source records unchanged. Original row-level inference preserved but superseded.',
+    result={'amendment':'Post-review temporal and uncertainty correction. Foreground begins at tick 6 after the background-only prelude and tick-5 acquisition cutoff. Training uncertainty uses seed-cluster CR1 influence scores. Not an untouched confirmation; original records remain preserved.',
       'independent_unit':'20 seeds, each containing 66 regime/load/condition cells. Paired methods and all cells remain together.',
       'dependence_evidence':'schedule.py derives foreground, cross:path and telemetry:path RNGs only from seed and stream name, not condition, regime or load. Same-seed scenarios reuse streams.',
       'bootstrap':'10000 percentile complete-seed resamples; pooled paired sum/count within each resample; zero-denominator replicates forbidden',
       'bootstrap_seed':BOOT_SEED,'test':'Two-sided exact sign test on nonzero seed-mean paired differences; tolerance 1e-12; does not assume symmetric magnitudes. Tests directional seed effects, not a null of equal pooled means.',
       'multiplicity':'Holm separately for each endpoint over nine reference-versus-B0--B8 contrasts. Ablation p-values descriptive and unadjusted. Confidence intervals nominal.',
-      'source_hashes':prior['input_sha256'],'original_analysis_sha256':sha(prior_path) if prior_path.is_file() else None,
+      'source_hashes':input_hashes,
       'pair_count':len(ref),'seeds':SEEDS,'comparisons':comparisons}
     (OUT/'corrected_inference.json').write_text(json.dumps(result,indent=2)+'\n')
     (OUT/'seed_contrasts.json').write_text(json.dumps(block_records,indent=2)+'\n')

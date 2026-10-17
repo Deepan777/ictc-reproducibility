@@ -31,14 +31,16 @@ class M14PreActionTelemetry:
 
 
 def reconstruct_pre_action_telemetry(
-    scenario: M14SimulationScenario, *, decision_tick: int = 5
+    scenario: M14SimulationScenario, *, decision_tick: int = 5, foreground_start_tick: int = 6
 ) -> M14PreActionTelemetry:
     """Derive only controller-visible samples available at the fixed pre-action deadline."""
     if decision_tick < 0:
         raise ValueError("M14 decision tick must be non-negative")
+    if foreground_start_tick <= decision_tick:
+        raise ValueError("controlled foreground action must follow the acquisition cutoff")
     # The schedule is action-independent.  We retain only its controller-facing projection and
     # deliberately do not expose the paired outcomes or oracle trace from this local execution.
-    paired = run_paired(scenario.config)
+    paired = run_paired(scenario.config, foreground_start_tick=foreground_start_tick)
     controller_trace = paired.baseline.controller_input()
     path_indices = {path.path_id: index for index, path in enumerate(scenario.config.paths)}
     latest: dict[str, dict[str, object]] = {}

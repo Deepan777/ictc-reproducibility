@@ -203,11 +203,14 @@ def _network_action(
 
 
 def run_action(
-    config: SimulationConfig, schedule: ExogenousSchedule, kind: ActionKind
+    config: SimulationConfig, schedule: ExogenousSchedule, kind: ActionKind,
+    *, foreground_start_tick: int = 0,
 ) -> SimulationRun:
     """Run one fixed action without consuming any new random number."""
     if kind not in {ActionKind.KEEP_CURRENT_PATH, ActionKind.REROUTE_TO_PATH}:
         raise ValueError("M03 supports only KEEP and REROUTE actions")
+    if not 0 <= foreground_start_tick < config.duration_ticks:
+        raise ValueError("foreground start must be inside the simulated episode")
     if schedule.config_hash != config.config_hash or schedule.scenario_id != config.scenario_id:
         raise ValueError("schedule does not belong to the supplied configuration")
     if len(schedule.ticks) != config.duration_ticks:
@@ -234,7 +237,8 @@ def run_action(
             queue = queues[path.path_id]
             cross_arrivals = tick_schedule.cross_arrivals[path_index]
             foreground_arrivals = (
-                tick_schedule.foreground_arrivals if path.path_id == selected_path else 0
+                tick_schedule.foreground_arrivals
+                if tick >= foreground_start_tick and path.path_id == selected_path else 0
             )
             dropped_cross = queue.enqueue("cross", cross_arrivals, tick)
             dropped_foreground = queue.enqueue("foreground", foreground_arrivals, tick)
@@ -339,11 +343,13 @@ def run_action(
     )
 
 
-def run_paired(config: SimulationConfig) -> PairedSimulation:
+def run_paired(config: SimulationConfig, *, foreground_start_tick: int = 0) -> PairedSimulation:
     """Run KEEP and REROUTE against one shared exogenous schedule."""
     schedule = generate_schedule(config)
-    baseline = run_action(config, schedule, ActionKind.KEEP_CURRENT_PATH)
-    intervention = run_action(config, schedule, ActionKind.REROUTE_TO_PATH)
+    baseline = run_action(config, schedule, ActionKind.KEEP_CURRENT_PATH,
+                          foreground_start_tick=foreground_start_tick)
+    intervention = run_action(config, schedule, ActionKind.REROUTE_TO_PATH,
+                              foreground_start_tick=foreground_start_tick)
     return PairedSimulation(
         pair_id=f"{config.scenario_id}:pair:{schedule.digest[:12]}",
         config=config,

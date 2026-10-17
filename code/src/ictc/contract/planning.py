@@ -395,6 +395,7 @@ class QueryContractPlanner:
         query: IdentifiabilityQuery,
         graph: TemporalCausalGraph,
         policy: ContractPlanningPolicy,
+        conditioning_variables: tuple[str, ...] = (),
     ) -> ContractPlan:
         for label, value in (
             ("plan_id", plan_id),
@@ -452,11 +453,18 @@ class QueryContractPlanner:
                 policy=policy,
                 detail=str(error),
             )
-        identification = BackdoorIdentifier(
+        identifier = BackdoorIdentifier(
             dag,
             graph_id=graph.graph_id,
             max_adjustment_variables=policy.max_adjustment_variables,
-        ).identify_query(query)
+        )
+        identification = (
+            identifier.identify_conditional(
+                query.treatment_variable_id, query.outcome_variable_id, conditioning_variables
+            )
+            if conditioning_variables
+            else identifier.identify_query(query)
+        )
         if not identification.identified:
             return self._base(
                 plan_id=plan_id,
@@ -469,7 +477,9 @@ class QueryContractPlanner:
                 identification=identification,
             )
         alternatives = tuple(
-            alternative for alternative in identification.minimal_adjustment_sets if alternative
+            tuple(sorted(set(alternative) | set(conditioning_variables)))
+            for alternative in identification.minimal_adjustment_sets
+            if alternative or conditioning_variables
         )
         if not alternatives:
             return self._base(

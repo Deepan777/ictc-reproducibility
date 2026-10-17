@@ -301,6 +301,7 @@ def _observations(
                 treatment=decision.assigned_action,
                 outcome=decision.observed_latency_ms,
                 covariates=values,
+                cluster_id=str(decision.seed),
             )
         )
     return tuple(rows)

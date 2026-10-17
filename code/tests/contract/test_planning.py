@@ -45,6 +45,16 @@ def plan_exact() -> ContractPlan:
     )
 
 
+def test_conditioning_context_is_mandatory_even_with_no_extra_adjustment() -> None:
+    result = QueryContractPlanner(capability_registry()).plan(
+        plan_id="conditional-plan",proposal_id="proposal",contract_id="contract",
+        query=routing_query(),graph=routing_graph(),policy=planning_policy(),
+        conditioning_variables=("U",),
+    )
+    assert result.contract is not None
+    assert "U" in result.contract.required_variable_ids
+
+
 def test_query_graph_policy_and_registry_compile_to_minimum_cost_contract() -> None:
     result = plan_exact()
 
