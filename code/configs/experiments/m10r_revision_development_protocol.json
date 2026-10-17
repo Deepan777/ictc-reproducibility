@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "m10r-contextual-revision-development-grid-v1",
+  "base_protocol": "m10r_revision_protocol.json",
+  "base_configuration_digest": "A0F3FFCE5B8860E73191C78428F864B7FE13D911D8581355325C98F019678D7B",
+  "authorized_splits": ["train", "development"],
+  "safety_gate": {
+    "execution_order": [
+      "identification",
+      "contract",
+      "estimability",
+      "frozen_support",
+      "uncertainty",
+      "context_effect_safety",
+      "policy"
+    ],
+    "comparison_scopes": ["global", "traffic-only", "context-local"],
+    "upper_interval_threshold_grid_ms": [0.0, -0.25, -0.5, -1.0, -2.0],
+    "unsupported_context_action": "DEFER_TO_KEEP",
+    "broader_fallback_for_unsupported_context": false,
+    "mean_effect_not_individual_certificate": true
+  },
+  "selection_rule": {
+    "causal_admissibility_required": true,
+    "maximum_false_causal_admissions": 0,
+    "minimum_retained_base_reroute_fraction": 0.25,
+    "primary_objective": "minimize harmful-event burden over all paired opportunities",
+    "tie_break_order": [
+      "conditional harmful-action rate",
+      "unnecessary deferral rate",
+      "higher retained base-reroute fraction",
+      "narrower estimator scope",
+      "configuration_id lexical order"
+    ],
+    "safety_subclaim_may_be_rejected_independently": true
+  },
+  "decision_persistence": {
+    "required_before_development_truth_join": true,
+    "forbidden_fields": [
+      "keep_latency_ms",
+      "reroute_latency_ms",
+      "latency_effect_ms",
+      "reroute_beneficial",
+      "true_queue_pressure_bin"
+    ]
+  },
+  "sealed_evaluation": {
+    "status": "NOT_AUTHORIZED",
+    "generation_allowed": false,
+    "outcome_access_allowed": false
+  }
+}

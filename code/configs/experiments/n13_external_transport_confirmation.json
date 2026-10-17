@@ -1,0 +1,84 @@
+{
+  "schema_version": "n13-external-transport-matrix-v1",
+  "phase": "external-confirmatory",
+  "matrix_id": "n13-m005-topology-zoo-transport-v1",
+  "primary_confirmation_dependency": "N13 passed all three frozen gates before this matrix was executed",
+  "policy_transport": "M005 unchanged; no coefficient, threshold, feature, endpoint, route, utility, or analysis retuning from external outcomes",
+  "seeds": [90000, 90001, 90002, 90003, 90004, 90005, 90006, 90007, 90008, 90009, 90010, 90011, 90012, 90013, 90014, 90015, 90016, 90017, 90018, 90019],
+  "traffic_profiles": ["web", "bulk", "realtime"],
+  "events": ["stable", "failure", "capacity", "cross-shift"],
+  "od_matrices": [0, 1, 2],
+  "actions": ["route0", "route1", "route2"],
+  "methods": ["S1_ICTC_CONTRACT", "B0_KEEP", "B1_SHORTEST_DELAY", "B2_MAX_CAPACITY", "B3_MIN_QUEUE", "B4_GREEDY_TELEMETRY", "B5_ECMP_HASH"],
+  "topologies": [
+    {
+      "topology_id": "geant-2012-03",
+      "official_source_url": "https://topology-zoo.org/files/Geant2012.graphml",
+      "official_graphml_sha256": "8487B2FB091D53F1317035162DF0D8EF436C9E1D10727E26865B0ECD89D4786E",
+      "derived_json_relative_path": "n13_transport_derived/geant-2012-03.json",
+      "derived_json_sha256": "FD0D7CDAFC300AFDD4EEDDC93A4C24FCBB2420A26930A058D69A2B5D26D26E13",
+      "native_relative_path": "n13_transport_derived/geant-2012-03.topology",
+      "native_execution_path": "D:/ictc-toolchain/n13-transport-inputs/geant-2012-03.topology",
+      "native_sha256": "7EBC9D3D719F18A2733C711A21204448E958D6E1DDA2F03B5AB41E409CF16D6F",
+      "nodes": 40,
+      "links": 61
+    },
+    {
+      "topology_id": "garr-2011-09",
+      "official_source_url": "https://topology-zoo.org/files/Garr201109.graphml",
+      "official_graphml_sha256": "A41B22107ABD9900C84B3B3D9F64F141981F134701A1C67B95EA031A29C8C318",
+      "derived_json_relative_path": "n13_transport_derived/garr-2011-09.json",
+      "derived_json_sha256": "ED2B021959B6F394F1A1F00EDD63D89729577A1D0531227A36D0A8544AB5949F",
+      "native_relative_path": "n13_transport_derived/garr-2011-09.topology",
+      "native_execution_path": "D:/ictc-toolchain/n13-transport-inputs/garr-2011-09.topology",
+      "native_sha256": "04009F93A300CE13D753293282062B116158754636C0F7833094C39C66C6D18E",
+      "nodes": 47,
+      "links": 62
+    }
+  ],
+  "controls": {
+    "duration_seconds": 8.0,
+    "decision_at_seconds": 3.5,
+    "event_at_seconds": 2.2,
+    "tcp_congestion_control": "CUBIC",
+    "udp_enabled": true,
+    "queue_disc": "FQ-CoDel",
+    "nominal_core_capacity_mbps": 25.0
+  },
+  "controller_thresholds_from_selected_policy": true,
+  "selected_policy_sha256": "3F3F68797122C488D0AB9D48D04B349C671D3AF4B9A8F71E4BD1A0C9D157404C",
+  "stochastic_factors": {
+    "core_capacity": "derived per-edge scale times scenario Uniform(0.88,1.12) and per-edge Uniform(0.94,1.06)",
+    "propagation_delay": "derived great-circle delay times scenario Uniform(0.92,1.08) and per-edge Uniform(0.97,1.03)",
+    "offered_load": "traffic-profile load multiplier Uniform(0.70,1.30)",
+    "tcp_udp_bursts": "independent exponential On/Off processes with fixed RNG streams",
+    "failure_or_change_time": "nominal event time plus Uniform(-0.20,0.20) seconds",
+    "event_duration": "Uniform(1.6,2.6) seconds with recovery",
+    "capacity_degradation": "affected route0-only link multiplier Uniform(0.22,0.42)",
+    "cross_traffic_shift": "18 Mbps times Uniform(0.75,1.25)",
+    "telemetry_loss": "per-scenario batch-loss probability Uniform(0.02,0.20)",
+    "telemetry_delay": "exponential delay with per-scenario mean Uniform(8,100) ms, capped at 250 ms"
+  },
+  "analysis": {
+    "utility_definition": "0.50*delivery_ratio + 0.20*min(throughput_mbps/5,1) + 0.20*max(1-p95_delay_ms/200,0) + 0.10*completion_ratio - 0.05*min(queue_drops/100,1)",
+    "harm_margin": 0.02,
+    "independent_block": "seed within topology",
+    "confidence_level": 0.95,
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 20260731,
+    "per_topology_reporting": true,
+    "reference_gates": {
+      "harm_superiority": "upper seed-bootstrap bound for S1 minus greedy harmful-action rate below zero",
+      "utility_noninferiority": "lower seed-bootstrap bound for S1 minus greedy utility above -0.01",
+      "minimum_opportunity_retention_rate": 0.45
+    },
+    "external_results_role": "prospective robustness evidence; cannot tune or rescue the primary N13 confirmation",
+    "oracle_role": "offline upper bound only; excluded from fair controller claims"
+  },
+  "expected_scenario_groups": 1440,
+  "expected_native_runs": 5760,
+  "expected_controller_decisions": 10080,
+  "native_source_sha256": "66F53B444D2FBEFE84E795ED94019D063669100882B30FAD00CBDD3C02810187",
+  "input_manifest_sha256": "4DFF5E5F148EDC891F1A4284A44FAF62D49F33FFAE5780FD2AA110AC329CDB45",
+  "information_boundary": "The frozen M005 logistic risk score and fair baselines use only delivered pre-decision telemetry plus frozen route metadata; external outcomes are unavailable before decisions."
+}

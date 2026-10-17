@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "m10r-contextual-revision-evaluation-v1",
+  "development_protocol": "m10r_revision_development_protocol.json",
+  "development_protocol_configuration_digest": "1C4CFF5FB16EF25EA896E5F78DB7D26ED40379872B4F57C85994823F39D299A1",
+  "development_evidence": {
+    "path": "docs/milestones/evidence/m10r_development_attempt_001.json",
+    "sha256": "A34B7EFEFAF36B42BFFE47E7CDD6532E34BA0210DB384A85543190D68DE0DD6C",
+    "implementation_commit": "d747688c479202d906cb36eea75c423bf991188b"
+  },
+  "selected_safety_gate": {
+    "configuration_id": "context-local:upper<=-0.25ms",
+    "scope": "context-local",
+    "upper_interval_threshold_ms": -0.25,
+    "minimum_per_arm": 10,
+    "unsupported_context_action": "DEFER_TO_KEEP",
+    "broader_fallback_for_unsupported_context": false,
+    "mean_effect_not_individual_certificate": true
+  },
+  "execution_order": [
+    "identification",
+    "contract",
+    "estimability",
+    "frozen_support",
+    "uncertainty",
+    "context_effect_safety",
+    "policy"
+  ],
+  "evaluation": {
+    "split": "test",
+    "expected_pair_count": 720,
+    "matrix_file_sha256": "F5572579E9D351B7FFAF7C22A4D17F1EA07B3D5D1E9F45D828E8424F41270CA7",
+    "generation_and_execution_require_single_use_authorization": true,
+    "decisions_required_before_truth_join": true,
+    "selective_exclusions": [],
+    "failed_runs": "retain and classify",
+    "reruns": "prohibited after authorization consumption"
+  },
+  "comparisons": {
+    "ablation_suite": "A0-A16 frozen implementation",
+    "baseline_suite_sha256": "08B47A58DACB169235A09E03BE771597073C747E2640C025B3CCFD34C5213B3C",
+    "report_all_development_candidates_without_reselection": true
+  },
+  "primary_endpoints": [
+    {
+      "metric_id": "false_causal_admission_rate",
+      "denominator": "reference non-identifiable opportunities"
+    },
+    {
+      "metric_id": "harmful_event_burden",
+      "denominator": "all paired opportunities"
+    },
+    {
+      "metric_id": "conditional_harmful_action_rate",
+      "denominator": "executed reroutes"
+    }
+  ],
+  "decision_rule": {
+    "allowed_values": ["CONTINUE", "REVISE PROBLEM", "NO-GO"],
+    "continue_requires": [
+      "zero false causal admissions",
+      "selected gate retains at least 25 percent of base A0 reroutes",
+      "selected gate reduces harmful-event burden versus base A0",
+      "selected gate is not universal or near-universal deferral",
+      "all access, persistence, support, and integrity checks pass"
+    ],
+    "revise_problem_when": "causal admissibility remains distinct but safety, support, calibration, or operational trade-offs are inadequate",
+    "no_go_when": "integrity, leakage, authorization, identification, or contract invariants fail"
+  },
+  "prohibited_after_evaluation_open": [
+    "threshold changes",
+    "scope changes",
+    "graph changes",
+    "support-threshold changes",
+    "metric amendments",
+    "selective exclusions",
+    "candidate reselection",
+    "unclassified reruns"
+  ]
+}

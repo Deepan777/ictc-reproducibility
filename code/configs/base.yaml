@@ -1,0 +1,13 @@
+project:
+  name: ictc-network-control
+  random_seed: 20260710
+  platform: windows
+  storage_policy: constrained
+causal_graph:
+  id: routing_telemetry_v1
+  version: 1
+controller:
+  action_family: routing
+  action_deadline_ms: 250
+telemetry:
+  default_sampling_rate_hz: 10.0

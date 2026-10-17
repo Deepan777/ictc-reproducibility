@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "ictc-m14-confirmatory-repair-v1",
+  "parent_protocol": "configs/experiments/m14_final_protocol.json",
+  "repair_reason": "The first held-out audit found that predeclared malicious-provenance and synthesis-infeasibility states were not represented in controller-visible contract verification.",
+  "repair_scope": [
+    "expose only simulated pre-action provenance-attestation validity, never an oracle queue or outcome",
+    "expose the pre-action contract-synthesis feasibility result",
+    "map invalid provenance and infeasible synthesis to the existing admission contract clauses"
+  ],
+  "fresh_test_matrix": "configs/experiments/m14_confirmatory_repair_matrix.json",
+  "fresh_test_seeds": [70000, 70001, 70002, 70003, 70004, 70005, 70006, 70007, 70008, 70009, 70010, 70011, 70012, 70013, 70014, 70015, 70016, 70017, 70018, 70019],
+  "training_policy": "Refit the unchanged estimator on the already-permitted, estimable final-005 training rows. This amendment followed a fresh-training overlap failure that occurred before repair decision persistence and before any repair held-out outcome access.",
+  "analysis": "configs/experiments/m16_analysis_amendment.json",
+  "primary_pair_count": 1320,
+  "reuse_policy": {
+    "ns3": "reuse checksum-validated final-005 evidence because the controller contract repair does not change the ns-3 network model",
+    "m12": "reuse checksum-validated final-005 captures because the repair does not change packet capture",
+    "first_heldout_run": "retain as a negative validity-audit artifact; never overwrite or present as confirmatory repair evidence"
+  },
+  "exclusions": "zero outcome-based exclusions; preserve every failure and negative result"
+}

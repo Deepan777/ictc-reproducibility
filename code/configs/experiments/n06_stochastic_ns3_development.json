@@ -1,0 +1,21 @@
+{
+  "schema_version": "n06-stochastic-ns3-v1",
+  "phase": "development",
+  "matrix_id": "n06-stochastic-ns3-development-v1",
+  "seeds": [81000, 81001, 81002, 81003],
+  "reserved_confirmatory_seeds": [82000, 82001, 82002, 82003, 82004, 82005, 82006, 82007, 82008, 82009, 82010, 82011, 82012, 82013, 82014, 82015, 82016, 82017, 82018, 82019],
+  "topology_families": ["two-balanced", "two-tradeoff", "three-heterogeneous"],
+  "workloads": ["light", "bursty", "saturated"],
+  "events": ["stable", "candidate-capacity-drop", "current-failure", "candidate-cross-shift"],
+  "controls": {
+    "duration_seconds": 6.0,
+    "decision_at_seconds": 2.0,
+    "event_at_seconds": 3.0,
+    "interval_ms": 2.0,
+    "max_packets": 1500,
+    "packet_size": 768
+  },
+  "expected_scenario_groups": 144,
+  "expected_action_executions": 336,
+  "outcome_boundary": "Physical-benefit labels are written only after validated action manifests and are not causal-identifiability labels."
+}

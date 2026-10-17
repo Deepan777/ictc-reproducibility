@@ -1,0 +1,83 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "m10r-contextual-revision-development-v1",
+  "decision_record": "docs/decisions/0004-separate-causal-admissibility-from-action-benefit.md",
+  "authorized_splits": ["train", "development"],
+  "corpus_matrix": {
+    "corpus_id": "ictc-m10r-contextual",
+    "configuration_digest": "D466E7ADCF0BC3186A2BBDD6EB7DEC30F43A6CF63DA0252D03DCC342ADE73558",
+    "train_pair_count": 2160,
+    "development_pair_count": 720,
+    "sealed_evaluation_pair_count": 720
+  },
+  "causal_graph": {
+    "graph_id": "m10_contextual_observational_selection_v2",
+    "graph_digest": "DB8A2AFADC2368E3DFA357D39B79A78EAB536D5D9BA4C53CEB1E0C8921FE14CF"
+  },
+  "context_schema": {
+    "fields": [
+      "service_relation",
+      "propagation_delay_relation",
+      "queue_limit_relation"
+    ],
+    "source": "frozen pre-simulation path configuration",
+    "outcome_or_post_action_fields_allowed": false
+  },
+  "assignment_policy": {
+    "policy_id": "m10r_bounded_queue_pressure_assignment_v1",
+    "conditioning_variable": "QueuePressureBin",
+    "reroute_probability_by_bin": {
+      "-1": 0.25,
+      "0": 0.5,
+      "1": 0.75
+    },
+    "minimum_probability": 0.25,
+    "maximum_probability": 0.75,
+    "deterministic_uniform_key": "SHA-256(policy_id + NUL + pair_id) first 64 bits"
+  },
+  "estimators": {
+    "scopes": ["global", "traffic-only", "context-local"],
+    "adjustment_set": ["QueuePressureBin"],
+    "minimum_per_arm": 10,
+    "unsupported_context_action": "DEFER",
+    "broader_fallback_for_unsupported_context": false
+  },
+  "primary_endpoints": [
+    {
+      "metric_id": "false_causal_admission_rate",
+      "denominator": "reference non-identifiable opportunities"
+    },
+    {
+      "metric_id": "harmful_event_burden",
+      "denominator": "all paired opportunities"
+    },
+    {
+      "metric_id": "conditional_harmful_action_rate",
+      "denominator": "executed reroutes"
+    }
+  ],
+  "prior_metric_dispositions": {
+    "source": "m10_pilot_protocol_amendment_001.json",
+    "source_file_sha256": "F5E80511CB83DC3F7F7FB73A15819E586E92492CC0946BDF35D49AFCA3803438",
+    "rule": "retain every prior M10 classification, denominator, and applicability"
+  },
+  "exclusion_policy": {
+    "outcome_based_exclusions": [],
+    "failed_runs": "retain and classify"
+  },
+  "analysis": {
+    "seed": 61013,
+    "confidence_level": 0.95,
+    "decisions_persisted_before_truth_join": true
+  },
+  "operating_thresholds": {
+    "status": "development-only-not-yet-frozen",
+    "values": null
+  },
+  "sealed_evaluation": {
+    "split": "test",
+    "status": "NOT_AUTHORIZED",
+    "output_generated": false,
+    "authorization_required": "new single-use authorization after repeated GO review"
+  }
+}

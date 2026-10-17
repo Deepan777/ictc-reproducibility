@@ -1,0 +1,195 @@
+syntax = "proto3";
+
+package ictc.v1;
+
+enum ActionClass {
+  ACTION_CLASS_UNSPECIFIED = 0;
+  ACTION_CLASS_ROUTING = 1;
+}
+
+enum ActionKind {
+  ACTION_KIND_UNSPECIFIED = 0;
+  ACTION_KIND_KEEP_CURRENT_PATH = 1;
+  ACTION_KIND_REROUTE_TO_PATH = 2;
+}
+
+enum ContractState {
+  CONTRACT_STATE_UNSPECIFIED = 0;
+  CONTRACT_STATE_PROPOSED = 1;
+  CONTRACT_STATE_REQUIREMENTS_GENERATED = 2;
+  CONTRACT_STATE_OFFERS_RECEIVED = 3;
+  CONTRACT_STATE_COMMITTED = 4;
+  CONTRACT_STATE_ACTIVE = 5;
+  CONTRACT_STATE_SATISFIED = 6;
+  CONTRACT_STATE_RELEASED = 7;
+  CONTRACT_STATE_INFEASIBLE = 8;
+  CONTRACT_STATE_EXPIRED = 9;
+  CONTRACT_STATE_BREACHED = 10;
+  CONTRACT_STATE_BREACHED_BEFORE_EXECUTION = 11;
+  CONTRACT_STATE_CANCELLED = 12;
+}
+
+enum AdmissionDecision {
+  ADMISSION_DECISION_UNSPECIFIED = 0;
+  ADMISSION_DECISION_ADMIT = 1;
+  ADMISSION_DECISION_MODIFY = 2;
+  ADMISSION_DECISION_DEFER = 3;
+  ADMISSION_DECISION_REJECT = 4;
+}
+
+message ProtocolMetadata {
+  string protocol_version = 1;
+  string message_id = 2;
+  string lifecycle_id = 3;
+  uint64 sent_at_unix_ms = 4;
+  uint32 delivery_attempt = 5;
+}
+
+message NetworkAction {
+  string action_id = 1;
+  ActionClass action_class = 2;
+  ActionKind action_kind = 3;
+  string path_id = 4;
+}
+
+message TargetOutcome {
+  string metric = 1;
+  string unit = 2;
+  double weight = 3;
+}
+
+message EvaluationHorizon {
+  uint64 horizon_ms = 1;
+}
+
+message IctcPropose {
+  string proposal_id = 1;
+  NetworkAction baseline_action = 2;
+  NetworkAction proposed_action = 3;
+  TargetOutcome target_outcome = 4;
+  EvaluationHorizon evaluation_horizon = 5;
+  uint64 action_deadline_unix_ms = 6;
+  string causal_graph_scope = 7;
+  string safety_policy_scope = 8;
+  NetworkAction fallback_action = 9;
+  ProtocolMetadata metadata = 10;
+}
+
+message VariableRequirement {
+  string variable_id = 1;
+  string role = 2;
+}
+
+message IctcRequire {
+  string requirement_id = 1;
+  string target_estimand = 2;
+  repeated VariableRequirement required_variables = 3;
+  repeated string identification_strategies = 4;
+  repeated string candidate_source_classes = 5;
+  uint64 max_freshness_ms = 6;
+  uint64 max_clock_skew_ms = 7;
+  double minimum_trust = 8;
+  uint32 minimum_distinct_sources = 9;
+  string privacy_constraint = 10;
+  double maximum_uncertainty_width = 11;
+  ProtocolMetadata metadata = 12;
+}
+
+message IctcOffer {
+  string offer_id = 1;
+  string source_id = 2;
+  repeated string measurable_variables = 3;
+  map<string, double> sampling_rates_hz = 4;
+  uint64 expected_delay_ms = 5;
+  uint64 max_clock_skew_ms = 6;
+  double cost = 7;
+  double bandwidth_kbps = 8;
+  double trust_score = 9;
+  string provenance_mechanism = 10;
+  string administrative_domain = 11;
+  uint64 available_from_unix_ms = 12;
+  uint64 available_until_unix_ms = 13;
+  ProtocolMetadata metadata = 14;
+}
+
+message IctcCommit {
+  string contract_id = 1;
+  repeated string selected_source_ids = 2;
+  repeated string selected_fields = 3;
+  map<string, double> sampling_rates_hz = 4;
+  uint64 synchronization_epoch_unix_ms = 5;
+  uint64 contract_start_unix_ms = 6;
+  uint64 valid_until_unix_ms = 7;
+  repeated string evidence_digests = 8;
+  double expected_total_cost = 9;
+  NetworkAction fallback_action = 10;
+  ProtocolMetadata metadata = 11;
+}
+
+message ClauseStatus {
+  string clause_id = 1;
+  bool satisfied = 2;
+  string reason_code = 3;
+}
+
+message IctcStatus {
+  string contract_id = 1;
+  ContractState state = 2;
+  repeated ClauseStatus clauses = 3;
+  uint64 freshness_ms = 4;
+  double missing_fraction = 5;
+  uint64 measured_delay_ms = 6;
+  uint64 clock_skew_ms = 7;
+  double source_trust = 8;
+  bool source_available = 9;
+  double uncertainty_width = 10;
+  ProtocolMetadata metadata = 11;
+}
+
+message IctcBreach {
+  string contract_id = 1;
+  repeated string violated_clause_ids = 2;
+  string affected_estimand = 3;
+  string severity = 4;
+  uint64 occurred_at_unix_ms = 5;
+  NetworkAction recommended_fallback = 6;
+  string audit_digest = 7;
+  ProtocolMetadata metadata = 8;
+}
+
+message IctcRelease {
+  string contract_id = 1;
+  string release_reason = 2;
+  ContractState final_state = 3;
+  string execution_outcome = 4;
+  string audit_digest = 5;
+  repeated string retained_artifact_locations = 6;
+  ProtocolMetadata metadata = 7;
+}
+
+message IctcEnvelope {
+  oneof payload {
+    IctcPropose propose = 1;
+    IctcRequire require = 2;
+    IctcOffer offer = 3;
+    IctcCommit commit = 4;
+    IctcStatus status = 5;
+    IctcBreach breach = 6;
+    IctcRelease release = 7;
+  }
+}
+
+service IctcCoordinator {
+  rpc Propose(IctcPropose) returns (IctcRequire);
+  rpc Offer(IctcOffer) returns (IctcStatus);
+  rpc Commit(IctcCommit) returns (IctcStatus);
+  rpc ReportStatus(IctcStatus) returns (IctcStatus);
+  rpc ReportBreach(IctcBreach) returns (IctcRelease);
+}
+
+service IctcTelemetryAgent {
+  rpc GetOffer(IctcRequire) returns (IctcOffer);
+  rpc Commit(IctcCommit) returns (IctcStatus);
+  rpc ReportStatus(IctcCommit) returns (IctcStatus);
+  rpc Release(IctcRelease) returns (IctcStatus);
+}

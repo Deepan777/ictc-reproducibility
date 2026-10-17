@@ -1,0 +1,45 @@
+{
+  "schema_version": "n13-prospective-policy-selection-v1",
+  "source_seeds": [86000, 86001, 86002, 86003, 86004, 86005, 86006, 86007],
+  "forbidden_confirmatory_seeds": [87000, 87001, 87002, 87003, 87004, 87005, 87006, 87007, 87008, 87009, 87010, 87011, 87012, 87013, 87014, 87015, 87016, 87017, 87018, 87019],
+  "fixed_thresholds": {
+    "minimum_delivered_batches": 20,
+    "maximum_loss_rate": 0.30,
+    "maximum_latest_age_ms": 300.0,
+    "maximum_delivery_delay_ms": 250.0,
+    "queue_penalty_per_packet": 0.5,
+    "delay_penalty_per_ms": 0.08,
+    "lookback_batches": 12,
+    "minimum_latest_score_improvement": 0.0
+  },
+  "candidate_grid": {
+    "minimum_candidate_up_fraction": [0.75, 0.90, 1.0],
+    "minimum_candidate_consensus_fraction": [0.50, 0.75, 1.0],
+    "maximum_candidate_queue_p90": [20.0, 40.0, 80.0],
+    "maximum_candidate_capacity_cv": [0.05, 0.20],
+    "minimum_downside_margin_p10": [-2.0, 0.0, 2.0, 4.0]
+  },
+  "development_gate": {
+    "maximum_harmful_action_rate": 0.05,
+    "maximum_harm_rate_ratio_to_greedy": 0.80,
+    "maximum_mean_utility_loss_vs_greedy": 0.01,
+    "minimum_opportunity_retention_rate": 0.45,
+    "minimum_greedy_disagreement_rate": 0.05
+  },
+  "selection_order": [
+    "harmful_action_rate_ascending",
+    "mean_utility_descending",
+    "opportunity_retention_rate_descending",
+    "candidate_id_ascending"
+  ],
+  "confirmation_primary_endpoints": {
+    "harm_superiority": "seed-block harmful-action-rate difference S1 minus greedy; upper 95% bootstrap confidence bound must be below zero",
+    "utility_noninferiority": "seed-block mean utility difference S1 minus greedy; lower 95% bootstrap confidence bound must exceed -0.01"
+  },
+  "confirmation_secondary_gate": {
+    "minimum_opportunity_retention_rate": 0.45,
+    "all_failures_and_negative_outcomes_retained": true
+  },
+  "multiplicity": "Both co-primary clauses must pass; no secondary endpoint can rescue a failed primary gate.",
+  "information_boundary": "Candidate decisions are persisted from delivered pre-decision probes before the selection process opens action outcome summaries. Confirmatory seeds are forbidden during selection."
+}

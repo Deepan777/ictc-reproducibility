@@ -1,0 +1,23 @@
+schema_version: 1.0.0
+graph_id: m10_observational_selection_v1
+version: 1
+status: controlled_pilot_benchmark_not_deployment_graph
+validity_scope:
+  action_family: foreground_flow_rerouting
+  treatment: RouteAction
+  outcome: EndToEndDelay
+  decision_tick: 0
+  assignment_policy: m10_queue_pressure_assignment_v1
+variables:
+  - QueuePressureBin
+  - RouteAction
+  - EndToEndDelay
+edges:
+  - [QueuePressureBin, RouteAction]
+  - [QueuePressureBin, EndToEndDelay]
+  - [RouteAction, EndToEndDelay]
+observation_mapping:
+  QueuePressureBin: sign(current_queue_occupancy - candidate_queue_occupancy)
+  complete_regime: QueuePressureBin is available only when both tick-zero path snapshots exist
+  stress_regime: QueuePressureBin is unavailable when either path snapshot is absent
+change_control: This graph is a separate controlled M10 benchmark. It does not revise routing_telemetry_v1.

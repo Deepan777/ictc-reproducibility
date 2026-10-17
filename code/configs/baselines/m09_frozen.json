@@ -1,0 +1,421 @@
+{
+  "controllers": [
+    {
+      "baseline_id": "B0",
+      "configuration_digest": "D3EC0BC642AA829FBF3D15F1EAFDAC589153099FA7AC26524BFC46D8391B4266",
+      "observation_policy": {
+        "adaptive": false,
+        "fields": [],
+        "maximum_bytes": 0,
+        "maximum_items": 0
+      },
+      "parameters": {
+        "deadline_weight": 1000.0,
+        "jitter_weight": 1.0,
+        "loss_weight": 1000.0
+      },
+      "training_cost": {
+        "cpu_only": true,
+        "model_storage_bytes": 21,
+        "parameter_count": 0,
+        "training_time_ns": 0
+      }
+    },
+    {
+      "baseline_id": "B1",
+      "configuration_digest": "2B4CAEB41C7E50068777C8D29C6C2F11F960B96FB94622321D2918D2BC4D16A1",
+      "observation_policy": {
+        "adaptive": false,
+        "fields": [],
+        "maximum_bytes": 0,
+        "maximum_items": 0
+      },
+      "parameters": {},
+      "training_cost": {
+        "cpu_only": true,
+        "model_storage_bytes": 239,
+        "parameter_count": 0,
+        "training_time_ns": 0
+      }
+    },
+    {
+      "baseline_id": "B2",
+      "configuration_digest": "8BFCE16A8C0A41EAA6B6585D373A6F18553A8B5C6CD66844A26540CABB520E1B",
+      "observation_policy": {
+        "adaptive": false,
+        "fields": [
+          "queue_occupancy",
+          "utilization"
+        ],
+        "maximum_bytes": 32,
+        "maximum_items": 4
+      },
+      "parameters": {
+        "minimum_improvement": 0.0,
+        "utilization_weight": 10.0
+      },
+      "training_cost": {
+        "cpu_only": true,
+        "model_storage_bytes": 330,
+        "parameter_count": 0,
+        "training_time_ns": 0
+      }
+    },
+    {
+      "baseline_id": "B3",
+      "configuration_digest": "D220AFBC5C2B9CA6F936F574A3FE8685A2523A54ED59B1CF87B6B0FA559EAF4D",
+      "observation_policy": {
+        "adaptive": true,
+        "fields": [
+          "queue_occupancy",
+          "utilization",
+          "sample_age_ticks",
+          "measurement_delay_ticks",
+          "clock_skew_ticks"
+        ],
+        "maximum_bytes": 32,
+        "maximum_items": 4
+      },
+      "parameters": {
+        "field_weights": [
+          [
+            "queue_occupancy",
+            1.0
+          ],
+          [
+            "utilization",
+            0.9
+          ],
+          [
+            "sample_age_ticks",
+            0.5
+          ],
+          [
+            "measurement_delay_ticks",
+            0.4
+          ],
+          [
+            "clock_skew_ticks",
+            0.3
+          ]
+        ],
+        "freshness_penalty": 0.25,
+        "maximum_selected_fields": 2,
+        "minimum_score": 0.0,
+        "switching_penalty": 0.1
+      },
+      "training_cost": {
+        "cpu_only": true,
+        "model_storage_bytes": 613,
+        "parameter_count": 0,
+        "training_time_ns": 0
+      }
+    },
+    {
+      "baseline_id": "B4",
+      "configuration_digest": "FAE6C95D31B10FE6CDB0505D28E34F50690022ABF2C7D6157384520F285D52C9",
+      "observation_policy": {
+        "adaptive": false,
+        "fields": [
+          "queue_occupancy",
+          "utilization"
+        ],
+        "maximum_bytes": 32,
+        "maximum_items": 4
+      },
+      "parameters": {
+        "confidence_threshold": 0.5,
+        "fields": [
+          "queue_occupancy",
+          "utilization"
+        ],
+        "model": {
+          "coefficients": [
+            0.1055822860564798,
+            -0.3045624620980605,
+            -0.17909687183773412,
+            0.43832766561631675,
+            -0.4827497705973936,
+            -0.666254713843373,
+            -0.02730397356458627,
+            0.43832766561631675
+          ],
+          "intercept": 1.5485936979557204,
+          "mean": [
+            0.40347222222222223,
+            0.04375,
+            -0.3597222222222222,
+            0.34375,
+            0.2809350198412699,
+            0.1863268849206349,
+            -0.09460813492063491,
+            0.34375
+          ],
+          "scale": [
+            1.2356348567551663,
+            0.3030444480600219,
+            1.2437800495780484,
+            0.47495887979908324,
+            0.39687303371530835,
+            0.30034888880848715,
+            0.31198744621350055,
+            0.47495887979908324
+          ]
+        },
+        "regularization_c": 1.0
+      },
+      "training_cost": {
+        "cpu_only": true,
+        "model_storage_bytes": 924,
+        "parameter_count": 9,
+        "training_time_ns": 17814900
+      }
+    },
+    {
+      "baseline_id": "B5",
+      "configuration_digest": "C05007F09ADD17BD7644D825E77B131A6224327C3B00A2AB35B58088F5AE5E34",
+      "observation_policy": {
+        "adaptive": false,
+        "fields": [],
+        "maximum_bytes": 0,
+        "maximum_items": 0
+      },
+      "parameters": {
+        "adjustment_set": [],
+        "graph_digest": "A3CDA11384A38C67D8A8EB74E3D184AE9924784D80E0AC1554865CC7087D58EA",
+        "graph_id": "routing_telemetry_v1",
+        "identified": true,
+        "point_effect_ms": -3.241148846692047,
+        "sample_size": 2880,
+        "upper_effect_ms": -2.9493657119797665
+      },
+      "training_cost": {
+        "cpu_only": true,
+        "model_storage_bytes": 485,
+        "parameter_count": 0,
+        "training_time_ns": 12812500
+      }
+    },
+    {
+      "baseline_id": "B6",
+      "configuration_digest": "CC56A1319DD5993919EFF7AA2F34F53BC76D53470B51B24AABA24FBDC4014214",
+      "observation_policy": {
+        "adaptive": false,
+        "fields": [
+          "queue_occupancy",
+          "utilization"
+        ],
+        "maximum_bytes": 32,
+        "maximum_items": 4
+      },
+      "parameters": {
+        "average_utilization_limit": 0.85,
+        "peak_utilization_limit": 0.95,
+        "queue_limit": 64
+      },
+      "training_cost": {
+        "cpu_only": true,
+        "model_storage_bytes": 357,
+        "parameter_count": 0,
+        "training_time_ns": 0
+      }
+    },
+    {
+      "baseline_id": "B7",
+      "configuration_digest": "037B0CABE1C48B435D8FDD528AC1F08E5BA49C566E5DB3D09C8F595B13AE4DB9",
+      "observation_policy": {
+        "adaptive": false,
+        "fields": [
+          "queue_occupancy",
+          "utilization",
+          "sample_age_ticks"
+        ],
+        "maximum_bytes": 48,
+        "maximum_items": 6
+      },
+      "parameters": {
+        "maximum_age_ticks": 0,
+        "required_fields": [
+          "queue_occupancy",
+          "utilization",
+          "sample_age_ticks"
+        ]
+      },
+      "training_cost": {
+        "cpu_only": true,
+        "model_storage_bytes": 393,
+        "parameter_count": 0,
+        "training_time_ns": 0
+      }
+    },
+    {
+      "baseline_id": "B8",
+      "configuration_digest": "48DAA14E2029D3F516CD704B8D2EA2FCA1F77D783B600C90239E2210BF3467E2",
+      "observation_policy": {
+        "adaptive": false,
+        "fields": [
+          "queue_occupancy",
+          "utilization"
+        ],
+        "maximum_bytes": 32,
+        "maximum_items": 4
+      },
+      "parameters": {
+        "fields": [
+          "queue_occupancy",
+          "utilization"
+        ],
+        "model": {
+          "coefficients": [
+            0.4406121981039612,
+            0.2185253835094166,
+            -0.38448348351438494,
+            -0.8151775963067593,
+            0.7646136789466967,
+            1.1220540297355872,
+            0.10754641257586324,
+            -0.8151775963079559,
+            -1.620518155354517
+          ],
+          "intercept": 10.305947066502819,
+          "mean": [
+            0.40347222222222223,
+            0.04375,
+            -0.3597222222222222,
+            0.34375,
+            0.2809350198412696,
+            0.1863268849206349,
+            -0.09460813492063505,
+            0.34375,
+            0.5
+          ],
+          "scale": [
+            1.2356348567551567,
+            0.30304444806000996,
+            1.2437800495780413,
+            0.47495887979908324,
+            0.3968730337153025,
+            0.3003488888084938,
+            0.3119874462134958,
+            0.47495887979908324,
+            0.5
+          ]
+        },
+        "ridge_alpha": 0.1
+      },
+      "training_cost": {
+        "cpu_only": true,
+        "model_storage_bytes": 909,
+        "parameter_count": 10,
+        "training_time_ns": 96077600
+      }
+    },
+    {
+      "baseline_id": "B9",
+      "configuration_digest": "05408C318E96CCA458D374B50A5ADCFD620B61D69DADDFDFAD46370ACDA024D6",
+      "observation_policy": {
+        "adaptive": false,
+        "fields": [
+          "utilization"
+        ],
+        "maximum_bytes": 16,
+        "maximum_items": 2
+      },
+      "parameters": {
+        "model": {
+          "coefficients": [
+            -0.4357390946312706,
+            -0.7125254163247458,
+            -0.13164991458713637,
+            0.8872828484403827
+          ],
+          "intercept": 1.556013056084512,
+          "mean": [
+            0.2809350198412699,
+            0.1863268849206349,
+            -0.09460813492063491,
+            0.34375
+          ],
+          "scale": [
+            0.39687303371530835,
+            0.30034888880848715,
+            0.31198744621350055,
+            0.47495887979908324
+          ]
+        },
+        "mutual_information": [
+          [
+            "queue_occupancy",
+            0.019002354909962715
+          ],
+          [
+            "utilization",
+            0.07494195635176015
+          ],
+          [
+            "sample_age_ticks",
+            0.003820361506600811
+          ],
+          [
+            "measurement_delay_ticks",
+            0.002457882352689289
+          ],
+          [
+            "clock_skew_ticks",
+            0.0
+          ]
+        ],
+        "selected_fields": [
+          "utilization"
+        ],
+        "top_k": 1
+      },
+      "training_cost": {
+        "cpu_only": true,
+        "model_storage_bytes": 856,
+        "parameter_count": 5,
+        "training_time_ns": 505625700
+      }
+    }
+  ],
+  "deadline_ns": 50000000,
+  "implementation_commit": "c80cd5859bdecd5ca59f6724c20bb8bfeeac5b20",
+  "milestone": "M09",
+  "schema_version": "1.0.0",
+  "source_corpus": {
+    "development_pair_count": 180,
+    "development_pair_set_digest": "0ED49D81911413964FCFA4336D7141834136346F470770D7F09C68CBB4713276",
+    "manifest_tree_digest": "74CC188ABAF5A437BD3E4362F2E8E37F3D81CB3B731352F9D8947F8A3C86D62E",
+    "root": "data/raw/m08_pilot",
+    "smoke_pair_count": 12,
+    "smoke_pair_set_digest": "71017AD306B41EEABA17BD564A6DBB3EE9D03BB77AAEAA6BDDA58FD12ABBA5AD",
+    "training_pair_count": 1440,
+    "training_pair_set_digest": "365F73A01EC72CDE22A6281ACF783F61B3F837012AEBC3CD5562877EAE1B47BF"
+  },
+  "tuning_policy": {
+    "confidence_threshold_candidates": [
+      0.5,
+      0.6,
+      0.7,
+      0.8,
+      0.9
+    ],
+    "correlation_top_k_candidates": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "digital_twin_alpha_candidates": [
+      0.0,
+      0.1,
+      1.0,
+      10.0
+    ],
+    "fit_split": "train",
+    "forbidden_split": "test",
+    "maximum_selective_error": 0.1,
+    "selection_split": "development"
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "schema_version": "1.0.0",
+  "protocol_id": "m10-controlled-pilot-v1",
+  "authorized_splits": ["train", "development"],
+  "forbidden_until_go": ["test outcomes", "test oracle", "test accounting"],
+  "decision_unit": "opportunity_id within paired scenario/pair_id",
+  "ablations": ["A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10", "A11", "A12", "A13", "A14", "A15", "A16"],
+  "operational_thresholds": {
+    "freshness_limit_ticks": 2,
+    "synchronization_limit_ticks": 1,
+    "acquisition_deadline_ticks": 5,
+    "telemetry_budget_bytes": 256,
+    "minimum_trust_millionths": 800000,
+    "minimum_source_diversity": 2,
+    "maximum_uncertainty_width_ms": 20.0,
+    "maximum_acceptable_effect_ms": 0.0,
+    "maximum_deadline_violation_rate": 0.05,
+    "uncertainty_width_grid_ms": [0.0, 1.0, 5.0, 20.0, 1000.0],
+    "deadline_budget_grid": [
+      {"deadline_ticks": 0, "budget_bytes": 64},
+      {"deadline_ticks": 0, "budget_bytes": 128},
+      {"deadline_ticks": 0, "budget_bytes": 640},
+      {"deadline_ticks": 2, "budget_bytes": 64},
+      {"deadline_ticks": 2, "budget_bytes": 128},
+      {"deadline_ticks": 2, "budget_bytes": 640},
+      {"deadline_ticks": 5, "budget_bytes": 64},
+      {"deadline_ticks": 5, "budget_bytes": 128},
+      {"deadline_ticks": 5, "budget_bytes": 640}
+    ]
+  },
+  "controlled_fixtures": {
+    "QUEUE_FIELD_REDACTED": "Remove only queue occupancy while retaining the frozen B9 utilization field.",
+    "INVALID_PROVENANCE": "Invalidate evidence lineage without changing the measured numeric value.",
+    "LOW_TRUST": "Set declared source trust to 500000 millionths.",
+    "SINGLE_DOMAIN": "Place evidence sources in one failure domain.",
+    "POST_COMMIT_BREACH": "Breach the contract after an otherwise valid commitment."
+  },
+  "metrics": [
+    {"metric_id": "non_identifiable_action_rate", "classification": "PRIMARY", "denominator": "all opportunities", "reason": "Independent M04 graph label is available before method decisions."},
+    {"metric_id": "false_causal_admission_rate", "classification": "PRIMARY", "denominator": "reference-nonadmissible opportunities", "reason": "Execution can be joined to independent graph and contract labels after persistence."},
+    {"metric_id": "unnecessary_deferral_rate", "classification": "PRIMARY", "denominator": "reference-admissible beneficial opportunities without a post-commit breach", "reason": "Paired outcome truth is available only to the scorer."},
+    {"metric_id": "harmful_action_rate", "classification": "PRIMARY", "denominator": "executed reroutes", "reason": "Paired reroute-minus-keep latency supplies the harm label."},
+    {"metric_id": "invariant_violation_rate", "classification": "SECONDARY", "denominator": "executed reroutes", "reason": "Violation means paired deadline-violation rate exceeds the frozen 0.05 limit."},
+    {"metric_id": "causal_effect_estimation_error", "classification": "SECONDARY", "denominator": "rows with an estimate and paired effect", "reason": "The post-persistence scorer computes estimate minus paired effect."},
+    {"metric_id": "confidence_interval_coverage", "classification": "SECONDARY", "denominator": "rows with an interval and paired effect", "reason": "Coverage is directly measurable for the frozen 95 percent interval."},
+    {"metric_id": "confidence_interval_width", "classification": "SECONDARY", "denominator": "rows with an interval", "reason": "Width is upper minus lower in milliseconds."},
+    {"metric_id": "end_to_end_latency", "classification": "SECONDARY", "denominator": "rows with an executable action", "reason": "Selected paired simulator outcome supplies mean latency."},
+    {"metric_id": "packet_delivery_ratio", "classification": "SECONDARY", "denominator": "rows with an executable action", "reason": "Foreground delivered/generated counts are read from privileged accounting only by the scorer boundary."},
+    {"metric_id": "packet_loss_ratio", "classification": "SECONDARY", "denominator": "rows with an executable action", "reason": "Selected paired simulator outcome supplies packet loss."},
+    {"metric_id": "jitter", "classification": "SECONDARY", "denominator": "rows with an executable action", "reason": "Selected paired simulator outcome supplies jitter."},
+    {"metric_id": "throughput", "classification": "SECONDARY", "denominator": "rows with an executable action", "reason": "Foreground packets delivered per schedule tick are accounting-derived."},
+    {"metric_id": "deadline_violation_rate", "classification": "SECONDARY", "denominator": "rows with an executable action", "reason": "Selected paired simulator outcome supplies the rate."},
+    {"metric_id": "route_changes", "classification": "SECONDARY", "denominator": "rows with an executable action", "reason": "KEEP is zero and REROUTE is one route change in this one-decision corpus."},
+    {"metric_id": "control_oscillation_count", "classification": "NOT_MEASURABLE_IN_M10", "denominator": "not applicable", "reason": "One action opportunity cannot express repeated route oscillation."},
+    {"metric_id": "convergence_time", "classification": "NOT_MEASURABLE_IN_M10", "denominator": "not applicable", "reason": "The corpus has no iterative multi-action convergence process."},
+    {"metric_id": "recovery_time", "classification": "NOT_MEASURABLE_IN_M10", "denominator": "not applicable", "reason": "The corpus has no long-horizon recovery episode."},
+    {"metric_id": "service_availability", "classification": "NOT_MEASURABLE_IN_M10", "denominator": "not applicable", "reason": "The bounded episode does not measure service uptime over a service horizon."},
+    {"metric_id": "contract_acquisition_latency", "classification": "SECONDARY", "denominator": "all opportunities", "reason": "Pre-action sample delivery tick is an explicit one-millisecond acquisition clock."},
+    {"metric_id": "action_admission_latency", "classification": "SECONDARY", "denominator": "all persisted decisions", "reason": "The dry-run runner measures admission wall duration."},
+    {"metric_id": "telemetry_bytes_per_proposed_action", "classification": "SECONDARY", "denominator": "all persisted decisions", "reason": "Field-level byte accounting is part of every contract assessment."},
+    {"metric_id": "protocol_messages_per_action", "classification": "DIAGNOSTIC", "denominator": "all persisted decisions", "reason": "Count only emitted logical lifecycle events; do not present as network transport bytes."},
+    {"metric_id": "telemetry_sampling_cost", "classification": "SECONDARY", "denominator": "all persisted decisions", "reason": "Telemetry item count is explicit for every assessment."},
+    {"metric_id": "cpu_time", "classification": "DIAGNOSTIC", "denominator": "complete dry-run process", "reason": "The runner records process CPU time for the bounded suite."},
+    {"metric_id": "wall_clock_time", "classification": "DIAGNOSTIC", "denominator": "complete dry-run process", "reason": "The runner records monotonic wall time for the bounded suite."},
+    {"metric_id": "peak_ram", "classification": "DIAGNOSTIC", "denominator": "complete dry-run process", "reason": "The runner records tracemalloc peak bytes."},
+    {"metric_id": "gpu_memory_if_used", "classification": "NOT_MEASURABLE_IN_M10", "denominator": "not applicable", "reason": "The frozen pilot is CPU-only and does not initialize a GPU."},
+    {"metric_id": "storage_volume", "classification": "DIAGNOSTIC", "denominator": "one immutable raw attempt", "reason": "The runner records persisted decision, score, and manifest byte counts."},
+    {"metric_id": "scalability", "classification": "DIAGNOSTIC", "denominator": "A10 and A16 telemetry-item configurations", "reason": "Only candidate telemetry-item scaling is measurable; fixed node/link scaling is deferred to M11."},
+    {"metric_id": "breach_detection_time", "classification": "DIAGNOSTIC", "denominator": "POST_COMMIT_BREACH fixtures with monitoring enabled", "reason": "The controlled runner records the monitoring step duration."},
+    {"metric_id": "fallback_execution_time", "classification": "DIAGNOSTIC", "denominator": "decisions that execute KEEP fallback", "reason": "The controlled runner records the fallback selection step duration."}
+  ],
+  "comparisons": {
+    "primary_baselines": ["A0:B1", "A0:B3", "A0:B4", "A0:B5", "A0:B6", "A0:B7", "A0:B8", "A0:B9"],
+    "upper_bound": ["A0:B0"],
+    "ablations": ["A0:A1", "A0:A2", "A0:A3", "A0:A4", "A0:A5", "A0:A6", "A0:A7", "A0:A8", "A0:A9", "A0:A10", "A0:A11", "A0:A12", "A0:A13", "A0:A14", "A0:A15", "A0:A16"]
+  },
+  "statistics": {
+    "bootstrap_seed": 100901,
+    "bootstrap_replicates": 10000,
+    "confidence_level": 0.95,
+    "binary_test": "exact McNemar",
+    "continuous_default": "Wilcoxon signed-rank",
+    "parametric_exception": "paired t-test only after preregistered normality and outlier diagnostics",
+    "multiplicity": "Holm correction within the primary baseline-comparison family",
+    "pairing_key": ["opportunity_id", "pair_id", "configuration_id"]
+  },
+  "exclusions": {
+    "allowed": ["corrupt input manifest", "schema-invalid persisted row", "process failure before decision persistence"],
+    "rule": "Retain every failed or missing run in completeness accounting; never exclude for unfavorable outcome.",
+    "duplicate_rule": "First checksum-valid immutable attempt is primary; later attempts remain classified and preserved."
+  },
+  "persistence_boundary": {
+    "decision_file_contains_truth": false,
+    "truth_join_key": "pair_id",
+    "required_order": ["persist decisions", "close controller state", "load paired truth", "score", "aggregate"]
+  },
+  "go_thresholds": {
+    "complete_reference_identified_rate": 1.0,
+    "minimum_stress_nonidentified_opportunities": 1,
+    "maximum_a0_false_admission_rate": 0.0,
+    "minimum_a0_complete_execution_rate": 0.5,
+    "minimum_a0_a9_disagreements": 1,
+    "minimum_no_identification_false_admissions": 1
+  },
+  "scientific_rule": {
+    "CONTINUE": "All GO thresholds pass and independent labels, two-arm support, and complete negative control remain valid.",
+    "REVISE PROBLEM": "The mechanism is distinct but an operational threshold, support condition, or controlled scenario is inadequate.",
+    "NO-GO": "The mechanism is not distinct, labels are circular, or the central hypothesis remains untestable after repair."
+  }
+}

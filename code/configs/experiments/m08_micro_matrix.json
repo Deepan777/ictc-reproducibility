@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0.0",
+  "corpus_id": "ictc-m08-micro",
+  "defaults": {
+    "duration_ticks": 64,
+    "tick_duration_ms": 1.0,
+    "deadline_ms": 20.0
+  },
+  "topology_families": [
+    {
+      "family_id": "train-balanced",
+      "split": "train",
+      "current_service_packets_per_tick": 7,
+      "candidate_service_packets_per_tick": 7,
+      "current_queue_limit_packets": 128,
+      "candidate_queue_limit_packets": 128,
+      "current_propagation_delay_ms": 8.0,
+      "candidate_propagation_delay_ms": 4.0
+    },
+    {
+      "family_id": "development-latency-asymmetric",
+      "split": "development",
+      "current_service_packets_per_tick": 6,
+      "candidate_service_packets_per_tick": 7,
+      "current_queue_limit_packets": 112,
+      "candidate_queue_limit_packets": 144,
+      "current_propagation_delay_ms": 12.0,
+      "candidate_propagation_delay_ms": 2.0
+    },
+    {
+      "family_id": "test-unseen-pressure-asymmetric",
+      "split": "test",
+      "current_service_packets_per_tick": 9,
+      "candidate_service_packets_per_tick": 6,
+      "current_queue_limit_packets": 192,
+      "candidate_queue_limit_packets": 104,
+      "current_propagation_delay_ms": 10.0,
+      "candidate_propagation_delay_ms": 3.5
+    }
+  ],
+  "traffic_levels": [
+    {
+      "traffic_id": "low",
+      "arrival_mode": "POISSON",
+      "foreground_rate_packets_per_tick": 1.5,
+      "current_cross_rate_packets_per_tick": 1.0,
+      "candidate_cross_rate_packets_per_tick": 1.0
+    },
+    {
+      "traffic_id": "high",
+      "arrival_mode": "POISSON",
+      "foreground_rate_packets_per_tick": 4.5,
+      "current_cross_rate_packets_per_tick": 4.0,
+      "candidate_cross_rate_packets_per_tick": 4.5
+    }
+  ],
+  "observation_regimes": [
+    {
+      "regime_id": "complete",
+      "failure_classification": "NONE",
+      "sample_every_ticks": 1,
+      "minimum_delay_ticks": 0,
+      "maximum_delay_ticks": 0,
+      "missing_probability": 0.0,
+      "maximum_clock_skew_ticks": 0,
+      "stale_after_ticks": 0
+    },
+    {
+      "regime_id": "skewed-stale",
+      "failure_classification": "CLOCK_SKEW_AND_STALENESS",
+      "sample_every_ticks": 2,
+      "minimum_delay_ticks": 2,
+      "maximum_delay_ticks": 5,
+      "missing_probability": 0.1,
+      "maximum_clock_skew_ticks": 3,
+      "stale_after_ticks": 1
+    }
+  ],
+  "seed_groups": [
+    {"group_id": "train-micro", "split": "train", "seeds": [8000]},
+    {"group_id": "development-micro", "split": "development", "seeds": [18000]},
+    {"group_id": "test-micro", "split": "test", "seeds": [28000]}
+  ]
+}

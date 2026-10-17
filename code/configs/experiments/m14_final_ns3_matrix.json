@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0.0",
+  "matrix_id": "ictc-m14-ns3-confirmatory-v1",
+  "seeds": [60000, 60001, 60002, 60003, 60004, 60005, 60006, 60007, 60008, 60009, 60010, 60011, 60012, 60013, 60014, 60015, 60016, 60017, 60018, 60019],
+  "conditions": [
+    {"topology_id": "two-path", "traffic_id": "low", "interval_ms": 10.0, "packet_size": 512, "actions": ["keep", "reroute"]},
+    {"topology_id": "two-path", "traffic_id": "medium", "interval_ms": 1.0, "packet_size": 768, "actions": ["keep", "reroute"]},
+    {"topology_id": "two-path", "traffic_id": "high", "interval_ms": 0.1, "packet_size": 1024, "actions": ["keep", "reroute"]},
+    {"topology_id": "three-path", "traffic_id": "low", "interval_ms": 10.0, "packet_size": 512, "actions": ["keep", "reroute", "alternate"]},
+    {"topology_id": "three-path", "traffic_id": "medium", "interval_ms": 1.0, "packet_size": 768, "actions": ["keep", "reroute", "alternate"]},
+    {"topology_id": "three-path", "traffic_id": "high", "interval_ms": 0.1, "packet_size": 1024, "actions": ["keep", "reroute", "alternate"]}
+  ],
+  "duration": 6.0,
+  "max_packets": 400
+}

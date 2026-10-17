@@ -1,0 +1,9 @@
+{
+  "schema_version": "1.0.0",
+  "matrix_id": "ictc-m14-confirmatory-repair-v1",
+  "topology_traffic_source": "configs/experiments/m10r_revision_matrix.json",
+  "condition_map": "configs/experiments/m14_condition_map.json",
+  "seeds": [70000, 70001, 70002, 70003, 70004, 70005, 70006, 70007, 70008, 70009, 70010, 70011, 70012, 70013, 70014, 70015, 70016, 70017, 70018, 70019],
+  "condition_topology_scope": {"unseen_topology": "test", "default": "all"},
+  "expected_paired_scenarios": 4320
+}

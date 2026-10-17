@@ -1,0 +1,163 @@
+{
+  "schema_version": "1.0.0",
+  "corpus_id": "ictc-m10r-contextual",
+  "defaults": {
+    "duration_ticks": 64,
+    "tick_duration_ms": 1.0,
+    "deadline_ms": 25.0
+  },
+  "topology_families": [
+    {
+      "family_id": "m10r-train-balanced",
+      "split": "train",
+      "current_service_packets_per_tick": 7,
+      "candidate_service_packets_per_tick": 7,
+      "current_queue_limit_packets": 128,
+      "candidate_queue_limit_packets": 128,
+      "current_propagation_delay_ms": 8.0,
+      "candidate_propagation_delay_ms": 4.0
+    },
+    {
+      "family_id": "m10r-train-current-constrained",
+      "split": "train",
+      "current_service_packets_per_tick": 5,
+      "candidate_service_packets_per_tick": 8,
+      "current_queue_limit_packets": 96,
+      "candidate_queue_limit_packets": 160,
+      "current_propagation_delay_ms": 7.0,
+      "candidate_propagation_delay_ms": 5.0
+    },
+    {
+      "family_id": "m10r-train-candidate-constrained",
+      "split": "train",
+      "current_service_packets_per_tick": 8,
+      "candidate_service_packets_per_tick": 5,
+      "current_queue_limit_packets": 160,
+      "candidate_queue_limit_packets": 96,
+      "current_propagation_delay_ms": 9.0,
+      "candidate_propagation_delay_ms": 3.0
+    },
+    {
+      "family_id": "m10r-development-balanced",
+      "split": "development",
+      "current_service_packets_per_tick": 8,
+      "candidate_service_packets_per_tick": 8,
+      "current_queue_limit_packets": 144,
+      "candidate_queue_limit_packets": 144,
+      "current_propagation_delay_ms": 9.0,
+      "candidate_propagation_delay_ms": 3.5
+    },
+    {
+      "family_id": "m10r-development-candidate-constrained",
+      "split": "development",
+      "current_service_packets_per_tick": 9,
+      "candidate_service_packets_per_tick": 6,
+      "current_queue_limit_packets": 176,
+      "candidate_queue_limit_packets": 112,
+      "current_propagation_delay_ms": 11.0,
+      "candidate_propagation_delay_ms": 2.5
+    },
+    {
+      "family_id": "m10r-evaluation-balanced",
+      "split": "test",
+      "current_service_packets_per_tick": 9,
+      "candidate_service_packets_per_tick": 9,
+      "current_queue_limit_packets": 192,
+      "candidate_queue_limit_packets": 192,
+      "current_propagation_delay_ms": 10.0,
+      "candidate_propagation_delay_ms": 4.5
+    },
+    {
+      "family_id": "m10r-evaluation-candidate-constrained",
+      "split": "test",
+      "current_service_packets_per_tick": 10,
+      "candidate_service_packets_per_tick": 7,
+      "current_queue_limit_packets": 208,
+      "candidate_queue_limit_packets": 120,
+      "current_propagation_delay_ms": 12.0,
+      "candidate_propagation_delay_ms": 3.0
+    }
+  ],
+  "traffic_levels": [
+    {
+      "traffic_id": "low",
+      "arrival_mode": "POISSON",
+      "foreground_rate_packets_per_tick": 1.5,
+      "current_cross_rate_packets_per_tick": 1.0,
+      "candidate_cross_rate_packets_per_tick": 1.0
+    },
+    {
+      "traffic_id": "medium",
+      "arrival_mode": "POISSON",
+      "foreground_rate_packets_per_tick": 3.0,
+      "current_cross_rate_packets_per_tick": 2.5,
+      "candidate_cross_rate_packets_per_tick": 3.0
+    },
+    {
+      "traffic_id": "high",
+      "arrival_mode": "POISSON",
+      "foreground_rate_packets_per_tick": 4.5,
+      "current_cross_rate_packets_per_tick": 4.0,
+      "candidate_cross_rate_packets_per_tick": 4.5
+    }
+  ],
+  "observation_regimes": [
+    {
+      "regime_id": "complete",
+      "failure_classification": "NONE",
+      "sample_every_ticks": 1,
+      "minimum_delay_ticks": 0,
+      "maximum_delay_ticks": 0,
+      "missing_probability": 0.0,
+      "maximum_clock_skew_ticks": 0,
+      "stale_after_ticks": 0
+    },
+    {
+      "regime_id": "delayed",
+      "failure_classification": "TELEMETRY_DELAY",
+      "sample_every_ticks": 1,
+      "minimum_delay_ticks": 1,
+      "maximum_delay_ticks": 4,
+      "missing_probability": 0.0,
+      "maximum_clock_skew_ticks": 0,
+      "stale_after_ticks": 2
+    },
+    {
+      "regime_id": "missing",
+      "failure_classification": "TELEMETRY_MISSINGNESS",
+      "sample_every_ticks": 1,
+      "minimum_delay_ticks": 0,
+      "maximum_delay_ticks": 0,
+      "missing_probability": 0.25,
+      "maximum_clock_skew_ticks": 0,
+      "stale_after_ticks": 0
+    },
+    {
+      "regime_id": "skewed-stale",
+      "failure_classification": "CLOCK_SKEW_AND_STALENESS",
+      "sample_every_ticks": 2,
+      "minimum_delay_ticks": 2,
+      "maximum_delay_ticks": 5,
+      "missing_probability": 0.1,
+      "maximum_clock_skew_ticks": 3,
+      "stale_after_ticks": 1
+    }
+  ],
+  "seed_groups": [
+    {
+      "group_id": "m10r-train",
+      "split": "train",
+      "seeds": [38000, 38001, 38002, 38003, 38004, 38005, 38006, 38007, 38008, 38009, 38010, 38011, 38012, 38013, 38014, 38015, 38016, 38017, 38018, 38019, 38020, 38021, 38022, 38023, 38024, 38025, 38026, 38027, 38028, 38029, 38030, 38031, 38032, 38033, 38034, 38035, 38036, 38037, 38038, 38039, 38040, 38041, 38042, 38043, 38044, 38045, 38046, 38047, 38048, 38049, 38050, 38051, 38052, 38053, 38054, 38055, 38056, 38057, 38058, 38059]
+    },
+    {
+      "group_id": "m10r-development",
+      "split": "development",
+      "seeds": [48000, 48001, 48002, 48003, 48004, 48005, 48006, 48007, 48008, 48009, 48010, 48011, 48012, 48013, 48014, 48015, 48016, 48017, 48018, 48019, 48020, 48021, 48022, 48023, 48024, 48025, 48026, 48027, 48028, 48029]
+    },
+    {
+      "group_id": "m10r-evaluation-sealed",
+      "split": "test",
+      "seeds": [58000, 58001, 58002, 58003, 58004, 58005, 58006, 58007, 58008, 58009, 58010, 58011, 58012, 58013, 58014, 58015, 58016, 58017, 58018, 58019, 58020, 58021, 58022, 58023, 58024, 58025, 58026, 58027, 58028, 58029]
+    }
+  ]
+}

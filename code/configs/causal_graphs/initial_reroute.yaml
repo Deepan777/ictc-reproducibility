@@ -1,0 +1,47 @@
+schema_version: 1.0.0
+graph_id: routing_telemetry_v1
+version: 1
+status: declared_not_learned
+validity_scope:
+  action_family: foreground_flow_rerouting
+  baseline_action: KEEP_CURRENT_PATH
+  proposed_action: REROUTE_TO_PATH
+  horizon: configured_per_query
+  environment: two_or_more_candidate_paths_with_shared_bottlenecks
+variables:
+  - OfferedLoad
+  - CrossTraffic
+  - LinkCapacity
+  - LinkDegradation
+  - EffectiveCapacity
+  - QueueOccupancy
+  - LinkUtilization
+  - RouteAction
+  - SelectedPath
+  - ExposedCrossTraffic
+  - EndToEndDelay
+  - PacketLoss
+  - ClockSkew
+  - ObservedTimestampQuality
+  - MeasurementDelay
+  - ObservedFreshness
+  - SourceCompromise
+  - ObservedTelemetryValue
+edges:
+  - [OfferedLoad, QueueOccupancy]
+  - [CrossTraffic, QueueOccupancy]
+  - [CrossTraffic, LinkUtilization]
+  - [LinkCapacity, QueueOccupancy]
+  - [LinkCapacity, EndToEndDelay]
+  - [LinkDegradation, EffectiveCapacity]
+  - [EffectiveCapacity, QueueOccupancy]
+  - [QueueOccupancy, EndToEndDelay]
+  - [QueueOccupancy, PacketLoss]
+  - [RouteAction, SelectedPath]
+  - [SelectedPath, ExposedCrossTraffic]
+  - [SelectedPath, EndToEndDelay]
+  - [SelectedPath, PacketLoss]
+  - [ClockSkew, ObservedTimestampQuality]
+  - [MeasurementDelay, ObservedFreshness]
+  - [SourceCompromise, ObservedTelemetryValue]
+change_control: Any revision requires an explicit scientific decision record.

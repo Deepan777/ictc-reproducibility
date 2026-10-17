@@ -1,0 +1,31 @@
+schema_version: 1.0.0
+graph_id: m10_contextual_observational_selection_v2
+version: 2
+status: controlled_revision_benchmark_not_deployment_graph
+validity_scope:
+  action_family: foreground_flow_rerouting
+  treatment: RouteAction
+  outcome: EndToEndDelay
+  decision_tick: 0
+  assignment_policy: m10r_bounded_queue_pressure_assignment_v1
+variables:
+  - TopologyContext
+  - TrafficLevel
+  - QueuePressureBin
+  - RouteAction
+  - EndToEndDelay
+edges:
+  - [TopologyContext, QueuePressureBin]
+  - [TopologyContext, EndToEndDelay]
+  - [TrafficLevel, QueuePressureBin]
+  - [TrafficLevel, EndToEndDelay]
+  - [QueuePressureBin, RouteAction]
+  - [QueuePressureBin, EndToEndDelay]
+  - [RouteAction, EndToEndDelay]
+observation_mapping:
+  TopologyContext: pre-simulation bins of candidate-minus-current service, propagation-delay, and queue-limit relations
+  TrafficLevel: predeclared traffic-level identifier
+  QueuePressureBin: sign(current_queue_occupancy - candidate_queue_occupancy) at tick zero
+  complete_regime: all context and QueuePressureBin values are available before action
+  stress_regime: QueuePressureBin is unavailable when either required path snapshot is absent
+change_control: This separate revision graph preserves m10_observational_selection_v1 and routing_telemetry_v1 unchanged.

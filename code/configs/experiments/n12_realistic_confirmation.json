@@ -1,0 +1,60 @@
+{
+  "schema_version": "n12-realistic-abilene-matrix-v1",
+  "phase": "confirmatory",
+  "matrix_id": "n12-realistic-abilene-confirmation-v1",
+  "seeds": [85000, 85001, 85002, 85003, 85004, 85005, 85006, 85007, 85008, 85009, 85010, 85011, 85012, 85013, 85014, 85015, 85016, 85017, 85018, 85019],
+  "traffic_profiles": ["web", "bulk", "realtime"],
+  "events": ["stable", "failure", "capacity", "cross-shift"],
+  "od_matrices": [0, 1, 2],
+  "actions": ["route0", "route1", "route2"],
+  "controls": {
+    "duration_seconds": 8.0,
+    "decision_at_seconds": 3.5,
+    "event_at_seconds": 2.2,
+    "tcp_congestion_control": "CUBIC",
+    "queue_disc": "FQ-CoDel",
+    "nominal_core_capacity_mbps": 25.0
+  },
+  "controller_thresholds": {
+    "minimum_delivered_batches": 20,
+    "maximum_loss_rate": 0.30,
+    "maximum_latest_age_ms": 300.0,
+    "maximum_delivery_delay_ms": 250.0,
+    "queue_penalty_per_packet": 0.5,
+    "delay_penalty_per_ms": 0.08,
+    "minimum_score_improvement": 0.0
+  },
+  "stochastic_factors": {
+    "core_capacity": "scenario multiplier Uniform(0.88,1.12) and per-edge Uniform(0.94,1.06)",
+    "propagation_delay": "scenario multiplier Uniform(0.92,1.08) and per-edge Uniform(0.97,1.03)",
+    "offered_load": "traffic-profile load multiplier Uniform(0.70,1.30)",
+    "tcp_udp_bursts": "independent exponential On/Off processes with fixed RNG streams",
+    "failure_or_change_time": "nominal event time plus Uniform(-0.20,0.20) seconds",
+    "event_duration": "Uniform(1.6,2.6) seconds with recovery",
+    "capacity_degradation": "affected link multiplier Uniform(0.22,0.42)",
+    "cross_traffic_shift": "18 Mbps times Uniform(0.75,1.25)",
+    "telemetry_loss": "per-scenario batch-loss probability Uniform(0.02,0.20)",
+    "telemetry_delay": "exponential delay with per-scenario mean Uniform(8,100) ms, capped at 250 ms"
+  },
+  "analysis": {
+    "utility_definition": "0.50*delivery_ratio + 0.20*min(throughput_mbps/5,1) + 0.20*max(1-p95_delay_ms/200,0) + 0.10*completion_ratio - 0.05*min(queue_drops/100,1)",
+    "harm_margin": 0.02,
+    "independent_block": "seed",
+    "confidence_level": 0.95,
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 20260717,
+    "paired_test": "exact one-sided seed-block sign-flip",
+    "primary_confirmatory_contrast": "S1_ICTC_CONTRACT_minus_B4_GREEDY_TELEMETRY",
+    "oracle_role": "offline upper bound only; excluded from fair controller claims"
+  },
+  "expected_scenario_groups": 720,
+  "expected_native_runs": 2880,
+  "expected_controller_decisions": 5040,
+  "native_source_sha256": "BF121F53C54A80F4E1679088C39FCAC80A96360FE843E7371F8F88A2E23E9CD9",
+  "input_manifest_sha256": "E86814D276D36C76989BC97B5DE726886ABD42EDFDC0093E546C85C8E265A39E",
+  "selected_policy_sha256": "D1428A493422C41A656E3C086B92E5C8A5A7F799DC84D6D1FD716039C9CB24C5",
+  "development_manifest_sha256": "7D6EE3A8718FA83D3145C31EA93EAEF5FE83594F2FF658172FD05683F3DECB5D",
+  "development_analysis_manifest_sha256": "98AF1F5B8ED464C13E0EBD96FD196181833CB73F2123B25F1C207940E6A9D25D",
+  "development_selection_manifest_sha256": "F8041AC99DFD13E79BF10295B64DF6CC5D4F7893BA37B596F97D8FFB512323F6",
+  "information_boundary": "All controller decisions are sealed from delivered pre-decision telemetry before paired outcomes. Hidden event variables and outcomes are unavailable to fair methods."
+}

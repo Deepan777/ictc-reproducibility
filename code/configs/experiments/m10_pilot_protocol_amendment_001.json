@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0.0",
+  "amendment_id": "m10-ate-unit-correction-001",
+  "protocol_id": "m10-controlled-pilot-v1.1",
+  "base_protocol": "m10_pilot_protocol.json",
+  "base_protocol_sha256": "8393B43340A38C836205BAA035A7CAACB66F31AB7F93C4D973E2BBCCD73F33F1",
+  "change_classification": "pre-test metric-unit repair",
+  "change_reason": "Attempt 001 compared a population ATE interval with individual pair effects. That quantity is an individual-effect residual, not confidence-interval coverage or ATE estimation error.",
+  "scoring_estimand": {
+    "unit": "unique split and topology-family population for each method/configuration",
+    "target": "mean paired reroute-minus-keep latency effect over original observed opportunities",
+    "exclusions": "controlled metadata-fault clones are excluded from target construction",
+    "coverage": "one indicator that the population mean paired effect lies within the method's ATE interval",
+    "individual_effect_residual": "retained as diagnostic only and never labelled ATE estimation error or interval coverage"
+  },
+  "metric_overrides": [
+    {
+      "metric_id": "causal_effect_estimation_error",
+      "classification": "SECONDARY",
+      "denominator": "unique split/topology-family/method/configuration estimands",
+      "reason": "Estimate minus mean paired population effect at the estimator's declared ATE grouping unit."
+    },
+    {
+      "metric_id": "confidence_interval_coverage",
+      "classification": "SECONDARY",
+      "denominator": "unique split/topology-family/method/configuration estimands",
+      "reason": "Coverage compares each ATE interval with the corresponding mean paired population effect, never an individual effect."
+    },
+    {
+      "metric_id": "confidence_interval_width",
+      "classification": "SECONDARY",
+      "denominator": "unique split/topology-family/method/configuration estimands",
+      "reason": "Width is reported once per distinct ATE interval and population target."
+    }
+  ]
+}

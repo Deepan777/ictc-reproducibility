@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "scenario_id": "m03-analytic-two-path",
+  "seed": 20260710,
+  "duration_ticks": 4,
+  "tick_duration_ms": 1.0,
+  "deadline_ms": 20.0,
+  "current_path_id": "path-current",
+  "candidate_path_id": "path-candidate",
+  "paths": [
+    {
+      "path_id": "path-current",
+      "service_packets_per_tick": 2,
+      "queue_limit_packets": 64,
+      "propagation_delay_ms": 10.0
+    },
+    {
+      "path_id": "path-candidate",
+      "service_packets_per_tick": 2,
+      "queue_limit_packets": 64,
+      "propagation_delay_ms": 2.0
+    }
+  ],
+  "foreground_process": {
+    "mode": "CONSTANT",
+    "rate_packets_per_tick": 2.0
+  },
+  "cross_traffic": [
+    {
+      "path_id": "path-current",
+      "process": {
+        "mode": "CONSTANT",
+        "rate_packets_per_tick": 0.0
+      }
+    },
+    {
+      "path_id": "path-candidate",
+      "process": {
+        "mode": "CONSTANT",
+        "rate_packets_per_tick": 0.0
+      }
+    }
+  ],
+  "telemetry": {
+    "sample_every_ticks": 1,
+    "minimum_delay_ticks": 0,
+    "maximum_delay_ticks": 0,
+    "missing_probability": 0.0,
+    "maximum_clock_skew_ticks": 0,
+    "stale_after_ticks": 0
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": "n12-development-policy-selection-v1",
+  "phase": "development-only-post-initial-analysis",
+  "source_journal": "D:\\ictc-toolchain\\n12-runs\\development-001",
+  "source_seeds": [84000, 84001, 84002, 84003],
+  "forbidden_seeds": [85000, 85001, 85002, 85003, 85004, 85005, 85006, 85007, 85008, 85009, 85010, 85011, 85012, 85013, 85014, 85015, 85016, 85017, 85018, 85019],
+  "fixed_quality_thresholds": {
+    "minimum_delivered_batches": 20,
+    "maximum_loss_rate": 0.30,
+    "maximum_latest_age_ms": 300.0,
+    "maximum_delivery_delay_ms": 250.0
+  },
+  "candidate_grid": {
+    "queue_penalty_per_packet": [0.0, 0.25, 0.5, 1.0],
+    "delay_penalty_per_ms": [0.04, 0.08, 0.12],
+    "minimum_score_improvement": [0.0, 1.5, 3.0, 5.0, 8.0]
+  },
+  "selection_rule": {
+    "minimum_opportunity_retention_rate": 0.50,
+    "primary": "minimum harmful-action rate",
+    "secondary": "maximum mean utility",
+    "tertiary": "maximum opportunity-retention rate",
+    "final_tie_break": "lexicographically smallest candidate_id"
+  },
+  "disclosure": "This bounded grid was introduced after the initial four-seed development summary showed that the initial ICTC thresholds did not improve over greedy telemetry. The initial negative result is retained. No confirmatory seed or outcome is accessed during selection."
+}

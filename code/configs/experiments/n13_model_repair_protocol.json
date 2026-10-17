@@ -1,0 +1,46 @@
+{
+  "schema_version": "n13-cross-fitted-risk-model-protocol-v1",
+  "created_after_retained_attempt": "policy-selection-001",
+  "source_seeds": [86000, 86001, 86002, 86003, 86004, 86005, 86006, 86007],
+  "forbidden_confirmatory_seeds": [87000, 87001, 87002, 87003, 87004, 87005, 87006, 87007, 87008, 87009, 87010, 87011, 87012, 87013, 87014, 87015, 87016, 87017, 87018, 87019],
+  "fixed_thresholds": {
+    "minimum_delivered_batches": 20,
+    "maximum_loss_rate": 0.30,
+    "maximum_latest_age_ms": 300.0,
+    "maximum_delivery_delay_ms": 250.0,
+    "queue_penalty_per_packet": 0.5,
+    "delay_penalty_per_ms": 0.08,
+    "lookback_batches": 12,
+    "minimum_latest_score_improvement": 0.0
+  },
+  "model_family": {
+    "estimator": "standardized logistic regression",
+    "class_weight": "balanced",
+    "solver": "lbfgs",
+    "maximum_iterations": 2000,
+    "regularization_C": [0.05, 0.2, 1.0, 5.0],
+    "maximum_predicted_harm_probability": [0.05, 0.10, 0.15, 0.20, 0.25, 0.30, 0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.90, 0.95]
+  },
+  "validation": "leave-one-seed-out cross-fitting; every development prediction is produced by a model trained without that seed",
+  "development_gate": {
+    "maximum_harmful_action_rate": 0.05,
+    "maximum_harm_rate_ratio_to_greedy": 0.80,
+    "maximum_mean_utility_loss_vs_greedy": 0.01,
+    "minimum_opportunity_retention_rate": 0.45,
+    "minimum_greedy_disagreement_rate": 0.05
+  },
+  "selection_order": [
+    "harmful_action_rate_ascending",
+    "mean_utility_descending",
+    "opportunity_retention_rate_descending",
+    "candidate_id_ascending"
+  ],
+  "confirmation_primary_endpoints": {
+    "harm_superiority": "upper 95% seed-bootstrap confidence bound for S1 minus greedy harmful-action rate is below zero",
+    "utility_noninferiority": "lower 95% seed-bootstrap confidence bound for S1 minus greedy mean utility exceeds -0.01"
+  },
+  "confirmation_secondary_gate": {
+    "minimum_opportunity_retention_rate": 0.45
+  },
+  "information_boundary": "The feature matrix is sealed before development outcomes are opened. Cross-fitted predictions exclude the scored seed. The final coefficients are trained on all development seeds and frozen before confirmation. Confirmation scoring is a manual logistic transform of pre-decision features."
+}

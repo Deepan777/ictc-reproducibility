@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0.0",
+  "map_id": "ictc-m14-condition-map-v1",
+  "topology_boundary": "abstract-two-path-parameter-family",
+  "conditions": [
+    {"condition_id": "complete", "telemetry": {"missing_probability": 0.0}, "contract_state": "SATISFIED"},
+    {"condition_id": "missing", "telemetry": {"missing_probability": 0.25}, "contract_state": "SATISFIED"},
+    {"condition_id": "delayed", "telemetry": {"minimum_delay_ticks": 1, "maximum_delay_ticks": 4, "stale_after_ticks": 2}, "contract_state": "SATISFIED"},
+    {"condition_id": "clock_skew", "telemetry": {"maximum_clock_skew_ticks": 3}, "contract_state": "SATISFIED"},
+    {"condition_id": "stale", "telemetry": {"minimum_delay_ticks": 3, "maximum_delay_ticks": 3, "stale_after_ticks": 1}, "contract_state": "BREACHED"},
+    {"condition_id": "source_failure", "telemetry": {"source_failure_probability": 1.0}, "contract_state": "BREACHED"},
+    {"condition_id": "malicious_telemetry", "telemetry": {"malicious_probability": 1.0, "malicious_queue_offset_packets": 32}, "contract_state": "BREACHED"},
+    {"condition_id": "topology_change", "simulation": {"capacity_change_tick": 32, "current_service_after_change": 3, "candidate_service_after_change": 9}, "contract_state": "SATISFIED"},
+    {"condition_id": "unseen_topology", "topology_split": "test", "contract_state": "SATISFIED"},
+    {"condition_id": "cross_traffic_shift", "simulation": {"cross_traffic_shift_tick": 32, "cross_traffic_shift_multiplier": 2.0}, "contract_state": "SATISFIED"},
+    {"condition_id": "contract_infeasibility", "contract_state": "INFEASIBLE", "execution": {"force_admission": false}}
+  ]
+}

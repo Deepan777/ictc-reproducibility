@@ -1,0 +1,38 @@
+{
+  "schema_version": "n10-confirmatory-support-ns3-v1",
+  "phase": "confirmatory",
+  "matrix_id": "n10-confirmatory-support-v1",
+  "seeds": [82000, 82001, 82002, 82003, 82004, 82005, 82006, 82007, 82008, 82009, 82010, 82011, 82012, 82013, 82014, 82015, 82016, 82017, 82018, 82019],
+  "topology_families": ["two-balanced", "two-tradeoff", "three-heterogeneous"],
+  "workloads": ["light", "bursty", "saturated"],
+  "events": ["stable", "candidate-capacity-drop", "current-failure", "candidate-cross-shift"],
+  "controls": {
+    "duration_seconds": 6.0,
+    "decision_at_seconds": 3.8,
+    "event_at_seconds": 3.0,
+    "interval_ms": 2.0,
+    "max_packets": 1500,
+    "packet_size": 768
+  },
+  "expected_scenario_groups": 720,
+  "expected_action_executions": 1680,
+  "expected_method_decisions": 4320,
+  "support_design_digest": "58EEECAB39CE31411D66806DB3D3BFA8FB3EDD598F5C948BBB1AC1338AEE1A08",
+  "support_design_file_sha256": "EB3ACA5484F6B74274DA19CD7485253B822DE22B34C21B4B567716787E14463E",
+  "source_n09_manifest_sha256": "E4572B8C2EF93039F2F1BE09DE39C1C77E33C7B5E690B63E7196AC7B279C0AD8",
+  "source_n08_manifest_sha256": "B5DBF55F27FA01B78146846D7B48DCE91C66B623F4EEF758A31F71C13E002BF0",
+  "supported_contexts": ["two-balanced|light|stable", "two-balanced|saturated|stable"],
+  "analysis": {
+    "utility_scores": {"BENEFICIAL": 1, "HARMFUL": -1, "KEEP": 0, "NO_MATERIAL_DIFFERENCE": 0},
+    "independent_block": "seed",
+    "confidence_level": 0.95,
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 20260715,
+    "paired_test": "exact one-sided seed-block sign-flip",
+    "multiplicity": "Holm across D1 versus B0-B4",
+    "family_alpha": 0.05,
+    "minimum_supported_beneficial": 32,
+    "required_d1_harmful": 0
+  },
+  "outcome_boundary": "All confirmatory method decisions are persisted before paired outcomes; analysis reads only a complete checksum-valid frozen journal."
+}

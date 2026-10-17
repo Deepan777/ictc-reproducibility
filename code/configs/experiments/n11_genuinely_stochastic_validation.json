@@ -1,0 +1,59 @@
+{
+  "schema_version": "n11-genuinely-stochastic-ns3-v1",
+  "phase": "confirmatory-validation",
+  "matrix_id": "n11-genuinely-stochastic-validation-v1",
+  "seeds": [83000, 83001, 83002, 83003, 83004, 83005, 83006, 83007, 83008, 83009, 83010, 83011, 83012, 83013, 83014, 83015, 83016, 83017, 83018, 83019],
+  "topology_families": ["two-balanced", "two-tradeoff", "three-heterogeneous"],
+  "workloads": ["light", "bursty", "saturated"],
+  "events": ["stable", "candidate-capacity-drop", "current-failure", "candidate-cross-shift"],
+  "controls": {
+    "duration_seconds": 6.0,
+    "decision_at_seconds": 3.8,
+    "event_at_seconds": 3.0,
+    "interval_ms": 2.0,
+    "max_packets": 1500,
+    "packet_size": 768
+  },
+  "stochastic_factors": {
+    "packet_arrivals": "Poisson process; exponential inter-arrival time with per-seed mean multiplier Uniform(0.65,1.35)",
+    "cross_traffic_intensity": "per-path nominal rate multiplier Uniform(0.65,1.35) with independent exponential On/Off durations",
+    "failure_time": "nominal event time plus Uniform(-0.20,0.20) seconds",
+    "failure_duration": "Uniform(1.0,1.6) seconds with explicit recovery",
+    "link_capacity": "per-path nominal capacity multiplier Uniform(0.82,1.18)",
+    "capacity_change": "candidate capacity multiplier Uniform(0.12,0.38)",
+    "propagation_delay": "per-path nominal delay multiplier Uniform(0.78,1.22)",
+    "queue_behavior": "per-path DropTail limit discrete Uniform[48,128] packets",
+    "telemetry_loss": "per-scenario batch-loss probability Uniform(0.02,0.18)",
+    "telemetry_delay": "per-scenario exponential delay with mean Uniform(5,80) ms, capped at 200 ms"
+  },
+  "controller_thresholds": {
+    "maximum_latest_age_ms": 300.0,
+    "maximum_empirical_loss_rate": 0.30,
+    "maximum_delivery_delay_ms": 200.0,
+    "minimum_delivered_batches": 10,
+    "minimum_candidate_capacity_ratio": 0.85
+  },
+  "expected_scenario_groups": 720,
+  "expected_action_executions": 1680,
+  "expected_method_decisions": 4320,
+  "source_n10_manifest_sha256": "3948F7CE43E904C822992F923CCBE5B0030B88791B7EFCC610C956CCEE28B1EA",
+  "source_n10_analysis_sha256": "07A1020B3382EA6888343CB894A3B6C7964A57EAA6CD478CA49F59C84EDB43D5",
+  "support_design_file_sha256": "EB3ACA5484F6B74274DA19CD7485253B822DE22B34C21B4B567716787E14463E",
+  "support_design_digest": "58EEECAB39CE31411D66806DB3D3BFA8FB3EDD598F5C948BBB1AC1338AEE1A08",
+  "native_source_sha256": "70BC4A8AFC803E998B195C22F888DBE8D6D874AC4B6BFF7A9173442644B081AC",
+  "supported_contexts": ["two-balanced|light|stable", "two-balanced|saturated|stable"],
+  "analysis": {
+    "utility_scores": {"BENEFICIAL": 1, "HARMFUL": -1, "KEEP": 0, "NO_MATERIAL_DIFFERENCE": 0},
+    "independent_block": "seed",
+    "confidence_level": 0.95,
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 20260716,
+    "paired_test": "exact one-sided seed-block sign-flip",
+    "primary_contrast": "S1_STOCHASTIC_ICTC_minus_B3_CAPACITY",
+    "continuous_endpoints": ["delivery_ratio", "mean_delay_ms", "jitter_ms", "throughput_mbps", "loss_ratio"],
+    "require_unique_seed_plans": true,
+    "require_unique_seed_outcome_vectors": true,
+    "require_condition_level_outcome_variability": true
+  },
+  "outcome_boundary": "Every controller decision is persisted from delayed/lost pre-decision telemetry before paired outcomes; all analyses require a complete checksum-valid immutable journal and use seed as the independent block."
+}
