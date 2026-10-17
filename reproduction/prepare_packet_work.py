@@ -21,8 +21,11 @@ def main():
     parser.add_argument('--work-root', type=Path, required=True)
     parser.add_argument('--external-inputs', type=Path, required=True)
     parser.add_argument('--native-runtime', type=Path, required=True)
-    parser.add_argument('--historical-policy', type=Path, required=True,
-        help='Recorded n13_selected_policy.json, regenerated or obtained separately; excluded from the code-only snapshot')
+    policy_input = parser.add_mutually_exclusive_group(required=True)
+    policy_input.add_argument('--historical-policy', type=Path,
+        help='Separately supplied historical policy; never downloaded implicitly')
+    policy_input.add_argument('--model-coefficients', type=Path,
+        help='Full-precision supplementary CSV; reconstructs the original decision model without fitting')
     args = parser.parse_args()
     root = args.work_root.resolve()
     root.mkdir(parents=True, exist_ok=False)
@@ -32,7 +35,11 @@ def main():
     shutil.copy2(SOURCE/'configs/revision_protocol.json', root/'configs/revision_protocol.json')
     policy = root/'code/configs/experiments/n13_selected_policy.json'
     policy.parent.mkdir(parents=True)
-    shutil.copy2(args.historical_policy, policy)
+    if args.model_coefficients is not None:
+        from reconstruct_policy import reconstruct
+        reconstruct(args.model_coefficients, policy)
+    else:
+        shutil.copy2(args.historical_policy, policy)
     sys.path[:0] = [str(SOURCE/'code'), str(SOURCE/'code/src')]
     transform = load('topology_transform', SOURCE/'code/scripts/prepare_n13_transport_topologies.py')
     derived = root/'code/configs/experiments/n13_transport_derived'
