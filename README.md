@@ -30,11 +30,6 @@ The manuscript's Supplementary Reproducibility Data attachment supplies the
 declared numerical inputs and development projections. Topology Zoo and MAWI
 inputs must be obtained from their respective providers.
 
-This code-only repository does not contain manuscript text, prompts, reviewer
-correspondence, figures, generated experiment results, fitted binary bundles,
-complete raw packet archives or external datasets. Code availability alone does
-not constitute a complete native simulation-campaign rerun.
-
 ## Licences
 
 The Python controller, analysis and reproduction utilities, configurations, build
