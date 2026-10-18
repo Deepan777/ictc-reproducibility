@@ -1,4 +1,5 @@
-// SPDX-License-Identifier: Proprietary
+// SPDX-License-Identifier: GPL-2.0-only
+// Copyright (c) 2026 Deepan777
 // N11 genuinely stochastic heterogeneous-path paired-potential-outcome simulator.
 
 #include "ns3/applications-module.h"

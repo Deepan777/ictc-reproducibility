@@ -1,4 +1,5 @@
-// SPDX-License-Identifier: Proprietary
+// SPDX-License-Identifier: GPL-2.0-only
+// Copyright (c) 2026 Deepan777
 // N13 frozen-policy transport validation on derived Topology Zoo backbones.
 
 #include "ns3/applications-module.h"

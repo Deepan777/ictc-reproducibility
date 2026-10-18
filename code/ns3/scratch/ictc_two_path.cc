@@ -1,4 +1,5 @@
-// SPDX-License-Identifier: Proprietary
+// SPDX-License-Identifier: GPL-2.0-only
+// Copyright (c) 2026 Deepan777
 // M11 wired two-path ns-3 scenario.  KEEP and REROUTE are separate paired runs.
 
 #include "ns3/applications-module.h"
