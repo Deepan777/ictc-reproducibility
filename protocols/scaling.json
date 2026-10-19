@@ -1,0 +1,14 @@
+{
+  "seed": 20261019,
+  "nodes": [10, 20, 40, 80],
+  "eligible_variables": [4, 8, 12, 16],
+  "catalogue_sizes": [10, 25, 50, 100, 200],
+  "failure_tolerances": [0, 1, 2],
+  "invalid_combinations": "K+2 > |V| are structurally impossible and reported as such, not silently measured.",
+  "generator": "One measured confounder U0 causes A and Y; K-1 additional eligible variables are causally irrelevant roots. Remaining graph nodes are descendants of Y, excluded from adjustment. Capabilities cycle over U0,A,Y with unique sources, deterministic seeded positive costs and two administrative domains.",
+  "repetitions": {"warmup": 50, "measured_fast": 1000, "measured_slow": 10},
+  "slow_rule": "If a pilot exceeds 10 ms, use 3 warmups and 10 measured calls; if it exceeds 1 s, use zero extra warmups and 3 calls; kill a single call after 60 s and retain the censored result.",
+  "cached_lookup": "Dictionary retrieval of a completed query result; no synthesis or input parsing included.",
+  "projection": {"R": [3, 8, 16], "N": [100, 1000, 10000], "window_batches": 32, "sampling_hz": 10, "shared_value_bytes": 25, "transmitted_metadata_bytes": 16, "local_receipt_bytes": 8},
+  "scope": "Synthetic deterministic CPU-time benchmark, no network outcomes and no operational scaling claim. Infeasible catalogues and timeouts retained."
+}

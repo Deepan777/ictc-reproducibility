@@ -1,0 +1,23 @@
+{
+  "schema": "ictc-offline-admission-v1",
+  "analysis_seed": 20261014,
+  "bootstrap_resamples": 10000,
+  "topologies": ["abilene", "geant-2012-03", "garr-2011-09"],
+  "stress_transport": "Use GEANT development/validation-selected filters unchanged on GEANT-stress.",
+  "proposers": ["Greedy", "Learned", "Fluid"],
+  "filters": ["margin", "persistence", "ensemble"],
+  "common_quality_gate": "Retain the original 20-batch, loss, sample-age and delivered-delay requirements for every new filter.",
+  "margin_quantiles_from_development": [0, 0.25, 0.5, 0.75, 0.9, 0.95, 0.99, 1],
+  "include_zero_margin": true,
+  "persistence_k": [1, 2, 4, 8, 12],
+  "ensemble_lower_quantile": 0.1,
+  "persistence_snapshot": "For each of the last k complete generation batches, reconstruct the received prefix at that batch's last receipt plus 1 ns; use only reports generated no later than that batch. Recompute the same proposer on that prefix. All k choices must equal the current candidate and all margins must exceed m.",
+  "eligibility": {"harm_max": 0.05, "harm_relative_max": 0.8, "utility_difference_min": -0.01, "retention_min": 0.45},
+  "ranking": ["harm ascending", "utility descending", "retention descending", "margin ascending", "k ascending"],
+  "no_eligible_candidate": "No parameter is selected. Report failure; do not manufacture a test operating point.",
+  "frontier_eta": [0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95],
+  "frontier_scope": "Descriptive test sweep; existing validation-selected ICTC threshold is unchanged.",
+  "family": "Within each topology and endpoint, Holm adjustment across all selected new-filter contrasts against proposer and ICTC; confidence intervals remain nominal.",
+  "headroom": "Ratio of population mean utility gains; bootstrap complete paired seed blocks jointly. A zero denominator is undefined, never zero-imputed.",
+  "claim_scope": "New post-review offline comparisons on retained populations, not a new untouched confirmation. No existing controller, threshold, fitted model or simulation record is changed."
+}
