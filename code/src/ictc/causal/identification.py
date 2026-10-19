@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from enum import StrEnum
 from itertools import combinations
 
-from ictc.causal.graph import CausalDAG
+from ictc.causal.graph import CausalDAG, GraphComplexityError
 from ictc.domain.models import IdentifiabilityQuery
 
 
@@ -37,6 +37,7 @@ class IdentifiabilityResult:
     missing_variable_sets: tuple[tuple[str, ...], ...] = ()
     detail: str = ""
     conditioning_variables: tuple[str, ...] = ()
+    diagnostic_truncated: bool = False
 
     def __post_init__(self) -> None:
         if self.identified and not self.valid_adjustment_sets:
@@ -158,9 +159,16 @@ class BackdoorIdentifier:
         treatment: str,
         outcome: str,
         available_variables: Iterable[str] | None = None,
+        *,
+        path_diagnostics: bool = True,
+        mode: str = "exhaustive",
+        conditioning_variables: Iterable[str] = (),
     ) -> IdentifiabilityResult:
         """Identify a total effect by adjustment or explain why current evidence cannot."""
         self._validate_endpoints(treatment, outcome)
+        if mode not in ("exhaustive", "single"):
+            raise ValueError("identification mode must be 'exhaustive' or 'single'")
+        context = tuple(conditioning_variables)
         available = frozenset(
             self.graph.observed_nodes if available_variables is None else available_variables
         )
@@ -171,7 +179,44 @@ class BackdoorIdentifier:
 
         canonical_available = tuple(sorted(available))
         missing_endpoints = tuple(sorted({treatment, outcome} - available))
-        open_paths = self.graph.open_backdoor_paths(treatment, outcome)
+        truncated = False
+        open_paths: tuple[tuple[str, ...], ...] = ()
+        if path_diagnostics:
+            try:
+                open_paths = self.graph.open_backdoor_paths(treatment, outcome)
+            except GraphComplexityError:
+                truncated = True
+        if mode == "single":
+            selected = self.find_minimal_adjustment_set(treatment, outcome, available, context)
+            single_valid = () if selected is None else (selected,)
+            return IdentifiabilityResult(
+                identified=selected is not None,
+                reason=(
+                    IdentifiabilityReason.TREATMENT_OR_OUTCOME_UNAVAILABLE
+                    if missing_endpoints
+                    else IdentifiabilityReason.MISSING_ADJUSTMENT_VARIABLES
+                    if selected is None
+                    else IdentifiabilityReason.IDENTIFIED_WITHOUT_ADJUSTMENT
+                    if not selected
+                    else IdentifiabilityReason.IDENTIFIED_BY_BACKDOOR
+                ),
+                treatment=treatment,
+                outcome=outcome,
+                available_variables=canonical_available,
+                valid_adjustment_sets=single_valid,
+                minimal_adjustment_sets=single_valid,
+                open_backdoor_paths=open_paths,
+                diagnostic_truncated=truncated,
+                conditioning_variables=tuple(sorted(context)),
+                detail=(
+                    "One inclusion-minimal available back-door adjustment set."
+                    if selected is not None
+                    else "Not identified by back-door adjustment with the available variables."
+                ),
+            )
+        if context:
+            # Keep the existing exhaustive conditional result and semantics.
+            return self.identify_conditional(treatment, outcome, context, available)
         if missing_endpoints:
             return IdentifiabilityResult(
                 identified=False,
@@ -180,6 +225,7 @@ class BackdoorIdentifier:
                 outcome=outcome,
                 available_variables=canonical_available,
                 open_backdoor_paths=open_paths,
+                diagnostic_truncated=truncated,
                 missing_variable_sets=(missing_endpoints,),
                 detail="Treatment assignment and outcome measurement must both be available.",
             )
@@ -194,6 +240,7 @@ class BackdoorIdentifier:
                 outcome=outcome,
                 available_variables=canonical_available,
                 open_backdoor_paths=open_paths,
+                diagnostic_truncated=truncated,
                 detail=str(error),
             )
 
@@ -213,6 +260,7 @@ class BackdoorIdentifier:
                 valid_adjustment_sets=valid,
                 minimal_adjustment_sets=minimal,
                 open_backdoor_paths=open_paths,
+                diagnostic_truncated=truncated,
                 detail=(
                     "No open backdoor path requires adjustment."
                     if reason is IdentifiabilityReason.IDENTIFIED_WITHOUT_ADJUSTMENT
@@ -230,6 +278,7 @@ class BackdoorIdentifier:
                 outcome=outcome,
                 available_variables=canonical_available,
                 open_backdoor_paths=open_paths,
+                diagnostic_truncated=truncated,
                 detail="Theoretical missing-variable search exceeded the configured exact bound.",
             )
 
@@ -250,6 +299,7 @@ class BackdoorIdentifier:
             outcome=outcome,
             available_variables=canonical_available,
             open_backdoor_paths=open_paths,
+            diagnostic_truncated=truncated,
             missing_variable_sets=missing_sets,
             detail=(
                 "No set of currently available observed variables blocks every backdoor path; "
@@ -257,10 +307,48 @@ class BackdoorIdentifier:
             ),
         )
 
+    def find_minimal_adjustment_set(
+        self,
+        treatment: str,
+        outcome: str,
+        available_variables: Iterable[str],
+        conditioning_variables: Iterable[str] = (),
+    ) -> tuple[str, ...] | None:
+        """Find one inclusion-minimal set, or None, under Pearl's back-door test.
+
+        Mandatory context is not returned as optional adjustment. The candidate
+        construction and deletion use O(K) d-separation calls, not subset search.
+        This neither lists all alternatives nor minimizes acquisition cost.
+        """
+        self._validate_endpoints(treatment, outcome)
+        available = self.graph._validate_nodes(available_variables)
+        context = self.graph._validate_nodes(conditioning_variables)
+        forbidden = {treatment, outcome} | set(self.graph.descendants(treatment))
+        if context & forbidden:
+            raise ValueError(
+                "conditioning context must exclude endpoints and treatment descendants"
+            )
+        if not available <= self.graph.observed_nodes:
+            raise ValueError("available variables must be declared observable")
+        if not (context | {treatment, outcome}) <= available:
+            return None
+        ancestors = self.graph.ancestors({treatment, outcome} | context)
+        selected = set((ancestors & available) - forbidden - context)
+        backdoor = self.graph.remove_outgoing(treatment)
+        if not backdoor.is_d_separated(treatment, outcome, selected | context):
+            return None
+        for node in sorted(selected):
+            if backdoor.is_d_separated(treatment, outcome, (selected - {node}) | context):
+                selected.remove(node)
+        return tuple(sorted(selected))
+
     def identify_query(
         self,
         query: IdentifiabilityQuery,
         available_variables: Iterable[str] | None = None,
+        *,
+        path_diagnostics: bool = True,
+        mode: str = "exhaustive",
     ) -> IdentifiabilityResult:
         """Evaluate a domain query while enforcing its declared graph scope."""
         if self.graph_id is not None and query.graph_id != self.graph_id:
@@ -282,6 +370,8 @@ class BackdoorIdentifier:
             query.treatment_variable_id,
             query.outcome_variable_id,
             available_variables,
+            path_diagnostics=path_diagnostics,
+            mode=mode,
         )
 
     def identify_conditional(

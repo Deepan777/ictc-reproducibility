@@ -396,7 +396,11 @@ class QueryContractPlanner:
         graph: TemporalCausalGraph,
         policy: ContractPlanningPolicy,
         conditioning_variables: tuple[str, ...] = (),
+        identification_mode: str = "exhaustive",
+        path_diagnostics: bool = True,
     ) -> ContractPlan:
+        if identification_mode not in ("exhaustive", "single"):
+            raise ValueError("identification mode must be 'exhaustive' or 'single'")
         for label, value in (
             ("plan_id", plan_id),
             ("proposal_id", proposal_id),
@@ -459,11 +463,19 @@ class QueryContractPlanner:
             max_adjustment_variables=policy.max_adjustment_variables,
         )
         identification = (
-            identifier.identify_conditional(
+            identifier.identify(
+                query.treatment_variable_id,
+                query.outcome_variable_id,
+                mode="single",
+                conditioning_variables=conditioning_variables,
+                path_diagnostics=path_diagnostics,
+            )
+            if identification_mode == "single"
+            else identifier.identify_conditional(
                 query.treatment_variable_id, query.outcome_variable_id, conditioning_variables
             )
             if conditioning_variables
-            else identifier.identify_query(query)
+            else identifier.identify_query(query, path_diagnostics=path_diagnostics)
         )
         if not identification.identified:
             return self._base(

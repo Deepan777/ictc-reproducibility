@@ -10,6 +10,7 @@ __pycache__/
 /analysis/
 /experiments/
 /external-inputs/
+/codex_outputs/
 *.joblib
 *.exe
 *.dll
