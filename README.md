@@ -63,7 +63,3 @@ package metadata and this repository overview, not controller behaviour.
   note = {Version comnet-revision-2026-10-18-v4; MIT, with GPL-2.0-only ns-3 integration}
 }
 ```
-
-## Offline admission analyses
-
-`analysis_tools/` provides matched admission-filter analyses and structured planning benchmarks. Set `ICTC_CAMPAIGN_ROOT` to the retained campaign directory and use the committed protocols in `protocols/`.
